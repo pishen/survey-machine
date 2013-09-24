@@ -1,6 +1,6 @@
 package pishen.db
 
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+import scala.collection.JavaConverters._
 
 import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.factory.GraphDatabaseFactory
@@ -22,24 +22,19 @@ class DBHandler(path: String) {
   private val typeIndex: Index[Node] = graphDB.index().forNodes(DBHandler.TypeIndex)
   private val recordIndex: Index[Node] = graphDB.index().forNodes(DBHandler.RecordIndex)
 
+  //need to go through the whole collection for it to close properly
   def records = {
-    val nodes: java.lang.Iterable[Node] = typeIndex.get(DBHandler.Type, DBHandler.Record)
-    nodes.asScala.view.map(node => new Record(node))
+    val nodes: java.util.Iterator[Node] = typeIndex.get(DBHandler.Type, DBHandler.Record)
+    nodes.asScala.map(node => new Record(node)).toSeq
   }
 
   def getRecord(name: String) = {
-    val nodes: java.lang.Iterable[Node] = recordIndex.get(Record.Name, name)
-    val records = nodes.asScala.map(node => new Record(node))
-    if (records.isEmpty) {
-      throw new NoSuchElementException("no Record with name: " + name)
-    } else {
-      records.head
-    }
+    val node = recordIndex.get(Record.Name, name).getSingle()
+    if (node != null) new Record(node) else null
   }
 
   def createRecord(name: String) {
-    val nodes: java.lang.Iterable[Node] = recordIndex.get(Record.Name, name)
-    require(nodes.asScala.isEmpty, "already exists Record with name: " + name)
+    require(getRecord(name) == null, "create failed, already exists Record with name: " + name)
 
     val node = graphDB.createNode()
     node.setProperty(DBHandler.Type, DBHandler.Record)
