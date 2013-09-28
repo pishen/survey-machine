@@ -10,7 +10,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    val testCase = TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.1, 200)
+    val testCase = TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.3, 200)
     logger.info("source: " + testCase.source.name)
     logger.info("rank")
     testCase.cocitationRank.foreach(logger info _._1.name)
