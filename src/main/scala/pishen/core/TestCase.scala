@@ -9,7 +9,8 @@ class TestCase(
   val answers: Set[Record],
   val seeds: Seq[Record],
   val cocitationRank: Seq[(Record, Int)]) {
-  val cocitationAP = computeAP(cocitationRank.map(_._1))
+  //val cocitationAP = computeAP(cocitationRank.map(_._1))
+  val cocitationAP = computeAP(answers.toSeq)
   private def computeAP(rankSeq: Seq[Record]) = {
     val precisions = rankSeq.zipWithIndex.filter(answers contains _._1).zipWithIndex.map(p => {
       (p._2 + 1) / (p._1._2 + 1).toDouble
@@ -24,8 +25,8 @@ object TestCase {
       r.year <= source.year &&
       r.citationType == CitationMark.Type.Number
     val shuffleRefs = Random.shuffle(source.outgoingRecords.filter(f))
-    val distinctL = shuffleRefs.distinct.length
-    assert(distinctL == shuffleRefs.length, distinctL + " do not equal " + shuffleRefs.length)
+    //val distinctL = shuffleRefs.distinct.length
+    //assert(distinctL == shuffleRefs.length, distinctL + " do not equal " + shuffleRefs.length)
     val ansSize = (shuffleRefs.size * hideRatio).toInt
     val answers = shuffleRefs.take(ansSize).toSet
     val seeds = shuffleRefs.drop(ansSize)
