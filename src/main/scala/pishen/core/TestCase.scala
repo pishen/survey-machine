@@ -10,7 +10,6 @@ class TestCase(
   val seeds: Seq[Record],
   val cocitationRank: Seq[(Record, Int)]) {
   val cocitationAP = computeAP(cocitationRank.map(_._1))
-  //val cocitationAP = computeAP(answers.toSeq)
   private def computeAP(rankSeq: Seq[Record]) = {
     val precisions = rankSeq.zipWithIndex.filter(answers contains _._1).zipWithIndex.map(p => {
       (p._2 + 1) / (p._1._2 + 1).toDouble
