@@ -18,6 +18,8 @@ object Main {
       TestCase(r, 0.1, 50)
     })
     
+    logger.info("APs: " + testCases.map(_.cocitationAP).mkString(", "))
+    logger.info("length: " + testCases.length)
     logger.info("MAP: " + (testCases.map(_.cocitationAP).sum / testCases.length))
     
   }
