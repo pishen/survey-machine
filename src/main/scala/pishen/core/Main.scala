@@ -10,8 +10,13 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    val testCases = dbHandler.records.filter(_.outgoingRecords.length >= 100)
-      .map(r => TestCase(r, 0.1, 50))
+    val testCases = dbHandler.records.filter(r => {
+      logger.info("check record: " + r.name)
+      r.outgoingRecords.length >= 100
+    }).map(r => {
+      logger.info("create testcase")
+      TestCase(r, 0.1, 50)
+    })
     
     logger.info("MAP: " + (testCases.map(_.cocitationAP).sum / testCases.length))
     
