@@ -25,7 +25,7 @@ class DBHandler(path: String) {
   //need to go through the whole collection for it to close properly
   def records = {
     val nodes: java.util.Iterator[Node] = typeIndex.get(DBHandler.Type, DBHandler.Record)
-    nodes.asScala.map(node => new Record(node)).toSeq
+    nodes.asScala.map(node => new Record(node))
   }
 
   def getRecord(name: String) = {

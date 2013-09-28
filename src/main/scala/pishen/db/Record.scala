@@ -35,8 +35,8 @@ class Record(node: Node) {
     getRelationships(Direction.INCOMING, Record.Ref).map(rel => new Reference(rel.getStartNode()))
 
   private def getRelationships(direction: Direction, relType: RelationshipType) =
-    node.getRelationships(direction, relType).asScala.toList
-  
+    node.getRelationships(direction, relType).asScala.iterator.toSeq
+    
   //equality
   override def equals(other: Any) =
     other match {
