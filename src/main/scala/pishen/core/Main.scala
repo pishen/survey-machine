@@ -16,6 +16,8 @@ object Main {
     testCase.cocitationRank.foreach(logger info _._1.name)
     logger.info("answer")
     testCase.answers.foreach(logger info _.name)
+    logger.info("seeds")
+    testCase.seeds.foreach(logger info _.name)
     logger.info("AP: " + testCase.cocitationAP)
     
     /*val testCases = dbHandler.records.filter(r => {
