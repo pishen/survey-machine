@@ -24,9 +24,9 @@ class Record(node: Node) {
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
 
   //relationships
-  def allNeighborRecords = outgoingRecords ++ incomingRecords
-  def outgoingRecords = outgoingReferences.filter(_.hasEndRecord).map(_.endRecord)
-  def incomingRecords = incomingReferences.map(_.startRecord)
+  def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
+  def outgoingRecords = outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
+  def incomingRecords = incomingReferences.map(_.startRecord).distinct
 
   def allReferences = outgoingReferences ++ incomingReferences
   def outgoingReferences =
