@@ -16,7 +16,7 @@ object Main {
     }).map(r => {
       logger.info("create testcase")
       TestCase(r, 0.1, 50)
-    })
+    }).toSeq
     
     logger.info("APs: " + testCases.map(_.cocitationAP).mkString(", "))
     logger.info("length: " + testCases.length)
