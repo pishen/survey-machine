@@ -8,7 +8,7 @@ object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
-    val dbHandler = new DBHandler("/media/pishen/DATA/new-graph-db")
+    val dbHandler = new DBHandler("new-graph-db")
 
     val testCases = dbHandler.records.filter(_.outgoingRecords.length >= 100)
       .map(r => TestCase(r, 0.1, 50))
