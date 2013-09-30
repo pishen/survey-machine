@@ -11,7 +11,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    val testCases: Seq[TestCase] = for(i <- 1 to 2) yield{
+    val testCases: Seq[TestCase] = for(i <- 1 to 10) yield{
       logger.info("test: " + i)
       TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.1, 50, 10, 0.05)
     }
