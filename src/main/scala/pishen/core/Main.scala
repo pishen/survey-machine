@@ -13,7 +13,7 @@ object Main {
 
     val testCases: Seq[TestCase] = for(i <- 1 to 10) yield{
       logger.info("test: " + i)
-      TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.1, 50, 3, 0.05)
+      TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.1, 50, 4, 0.05)
     }
     logger.info("cociationAP: " + testCases.map(_.cocitationAP).max)
     logger.info("katzAP: " + testCases.map(_.katzAP).max)
