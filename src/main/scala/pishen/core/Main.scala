@@ -26,6 +26,7 @@ object Main {
 
     val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
+      r.citationType == CitationMark.Type.Number &&
       r.outgoingRecords.filter(_.citationType == CitationMark.Type.Number).length >= 20
     }).map(r => {
       logger.info("create testcases")
