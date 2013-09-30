@@ -26,10 +26,10 @@ object Main {
 
     val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
-      r.outgoingRecords.filter(_.citationType == CitationMark.Type.Number).length >= 18
+      r.outgoingRecords.filter(_.citationType == CitationMark.Type.Number).length >= 20
     }).map(r => {
       logger.info("create testcases")
-      for (i <- 1 to 10) yield TestCase(r, 0.1, 100)
+      for (i <- 1 to 10) yield TestCase(r, 0.1, 50)
     }).toSeq
 
     //logger.info("APs: " + testCases.map(_.cocitationAP).mkString(", "))

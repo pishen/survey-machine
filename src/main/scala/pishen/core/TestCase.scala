@@ -24,8 +24,6 @@ object TestCase {
       r.year <= source.year &&
       r.citationType == CitationMark.Type.Number
     val shuffleRefs = Random.shuffle(source.outgoingRecords.filter(f))
-    //val distinctL = shuffleRefs.distinct.length
-    //assert(distinctL == shuffleRefs.length, distinctL + " do not equal " + shuffleRefs.length)
     val ansSize = (shuffleRefs.size * hideRatio).toInt
     val answers = shuffleRefs.take(ansSize).toSet
     val seeds = shuffleRefs.drop(ansSize)
