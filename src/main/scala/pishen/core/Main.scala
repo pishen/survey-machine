@@ -10,10 +10,10 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    val testCases: Seq[TestCase] = for(i <- 1 to 10) yield{
+    /*val testCases: Seq[TestCase] = for(i <- 1 to 10) yield{
       logger.info("test: " + i)
       TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.5, 200)
-    }
+    }*/
     //logger.info("source: " + testCase.source.name)
     //logger.info("rank")
     //testCase.cocitationRank.foreach(logger info _._1.name)
@@ -22,18 +22,19 @@ object Main {
     //logger.info("seeds")
     //testCase.seeds.foreach(logger info _.name)
     //logger.info("AP: " + testCase.cocitationAP)
-    
-    /*val testCases = dbHandler.records.filter(r => {
+
+    val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
-      r.outgoingRecords.length >= 50
+      r.outgoingRecords.length >= 18
     }).map(r => {
-      logger.info("create testcase")
-      TestCase(r, 0.1, 150)
-    }).toSeq*/
-    
+      logger.info("create testcases")
+      for (i <- 1 to 10) yield TestCase(r, 0.1, 100)
+    }).toSeq
+
     //logger.info("APs: " + testCases.map(_.cocitationAP).mkString(", "))
     //logger.info("length: " + testCases.length)
-    logger.info("MAP: " + (testCases.map(_.cocitationAP).sum / testCases.length))
-    
+    logger.info("normal MAP: " + (testCases.map(_.head.cocitationAP).sum / testCases.length))
+    logger.info("best of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).max).sum / testCases.length))
+
   }
 }
