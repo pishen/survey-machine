@@ -11,14 +11,14 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    val testCases = (1 to 50).par.map(i => {
+    /*val testCases = (1 to 50).par.map(i => {
       logger.info("test: " + i)
       TestCase(dbHandler.getRecord("journals-tog-ChenWC11"), 0.1, 50, 3, 0.05)
     })
     logger.info("cociationAP: " + testCases.map(_.cocitationAP).max)
-    logger.info("katzAP: " + testCases.map(_.katzAP).max)
+    logger.info("katzAP: " + testCases.map(_.katzAP).max)*/
 
-    /*val testCases = dbHandler.records.filter(r => {
+    val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == CitationMark.Type.Number &&
       r.outgoingRecords.filter(_.citationType == CitationMark.Type.Number).length >= 18
@@ -33,6 +33,6 @@ object Main {
     logger.info("C avg of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).sum / 10).sum / testCases.length))
     logger.info("K normal MAP: " + (testCases.map(_.head.katzAP).sum / testCases.length))
     logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
-    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))*/
+    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))
   }
 }
