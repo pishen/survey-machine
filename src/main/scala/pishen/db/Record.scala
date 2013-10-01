@@ -28,7 +28,7 @@ class Record(node: Node) {
   def outgoingRecords = try {
     outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
   } catch {
-    case ex: NoSuchElementException => {
+    case ex: java.util.NoSuchElementException => {
       logger.error("exception at Record: " + name)
       Seq.empty[Record]
     }
