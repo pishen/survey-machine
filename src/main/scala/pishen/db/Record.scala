@@ -30,7 +30,7 @@ class Record(node: Node) {
   } catch {
     case ex: java.util.NoSuchElementException => {
       logger.error("exception at Record: " + name)
-      Seq.empty[Record]
+      throw ex
     }
   }
   def incomingRecords = incomingReferences.map(_.startRecord).distinct
