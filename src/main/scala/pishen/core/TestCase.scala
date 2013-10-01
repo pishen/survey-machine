@@ -4,11 +4,11 @@ import pishen.db.Record
 import scala.util.Random
 import scala.math._
 import pishen.db.CitationMark
+import scala.collection.parallel.ParSeq
 
 class TestCase(
   val source: Record,
   val answers: Set[Record],
-  val seeds: Seq[Record],
   val cocitationRank: Seq[(Record, Int)],
   val katzRank: Seq[(Record, Double)]) {
   val cocitationAP = computeAP(cocitationRank.map(_._1))
@@ -29,17 +29,16 @@ object TestCase {
     val shuffleRefs = Random.shuffle(source.outgoingRecords.filter(f))
     val ansSize = (shuffleRefs.size * hideRatio).toInt
     val answers = shuffleRefs.take(ansSize).toSet
-    val seeds = shuffleRefs.drop(ansSize)
+    val seeds = shuffleRefs.drop(ansSize).par
     val seedSet = seeds.toSet
-    answers.foreach(a => assert(!seeds.contains(a)))
     val cocitationRank = {
       val flat = seeds.flatMap(seed =>
         seed.incomingRecords.filter(f).flatMap(middle =>
           middle.outgoingRecords.filter(r => !seedSet.contains(r) && f(r))))
-      flat.groupBy(r => r).mapValues(_.length).toSeq.sortBy(_._2).reverse.take(topK)
+      flat.groupBy(r => r).mapValues(_.length).toList.sortBy(_._2).reverse.take(topK)
     }
     def computeKatz(level: Int,
-                    preLevelRecords: Seq[(Record, Int)],
+                    preLevelRecords: ParSeq[(Record, Int)],
                     preRankSeq: Seq[(Record, Double)]): Seq[(Record, Double)] = {
       val levelRecords = preLevelRecords
         .flatMap(p => p._1.allNeighborRecords.filter(f).map(r => (r, p._2)))
@@ -53,6 +52,6 @@ object TestCase {
         computeKatz(level + 1, levelRecords.toSeq, mergedRankSeq)
     }
     val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
-    new TestCase(source, answers, seeds, cocitationRank, katzRank)
+    new TestCase(source, answers, cocitationRank, katzRank)
   }
 }
