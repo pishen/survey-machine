@@ -25,7 +25,14 @@ class Record(node: Node) {
 
   //relationships
   def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
-  def outgoingRecords = outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
+  def outgoingRecords = try {
+    outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
+  } catch {
+    case ex: NoSuchElementException => {
+      logger.error("exception at Record: " + name)
+      Seq.empty[Record]
+    }
+  }
   def incomingRecords = incomingReferences.map(_.startRecord).distinct
 
   def allReferences = outgoingReferences ++ incomingReferences
@@ -36,12 +43,12 @@ class Record(node: Node) {
 
   private def getRelationships(direction: Direction, relType: RelationshipType) =
     node.getRelationships(direction, relType).asScala.iterator.toSeq
-    
+
   //equality
   override def equals(other: Any) =
     other match {
       case that: Record => (that canEqual this) && nodeId == that.nodeId
-      case _ => false
+      case _            => false
     }
   def canEqual(other: Any) = other.isInstanceOf[Record]
   override def hashCode = nodeId.hashCode
