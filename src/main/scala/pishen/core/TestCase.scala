@@ -4,7 +4,6 @@ import pishen.db.Record
 import scala.util.Random
 import scala.math._
 import pishen.db.CitationMark
-import scala.collection.parallel.ParSeq
 
 class TestCase(
   val source: Record,
@@ -29,16 +28,16 @@ object TestCase {
     val shuffleRefs = Random.shuffle(source.outgoingRecords.filter(f))
     val ansSize = (shuffleRefs.size * hideRatio).toInt
     val answers = shuffleRefs.take(ansSize).toSet
-    val seeds = shuffleRefs.drop(ansSize).par
+    val seeds = shuffleRefs.drop(ansSize)
     val seedSet = seeds.toSet
     val cocitationRank = {
       val flat = seeds.flatMap(seed =>
         seed.incomingRecords.filter(f).flatMap(middle =>
           middle.outgoingRecords.filter(r => !seedSet.contains(r) && f(r))))
-      flat.groupBy(r => r).mapValues(_.length).toList.sortBy(_._2).reverse.take(topK)
+      flat.groupBy(r => r).mapValues(_.length).toSeq.sortBy(_._2).reverse.take(topK)
     }
     def computeKatz(level: Int,
-                    preLevelRecords: ParSeq[(Record, Int)],
+                    preLevelRecords: Seq[(Record, Int)],
                     preRankSeq: Seq[(Record, Double)]): Seq[(Record, Double)] = {
       val levelRecords = preLevelRecords
         .flatMap(p => p._1.allNeighborRecords.filter(f).map(r => (r, p._2)))
