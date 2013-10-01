@@ -11,7 +11,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    val testCases = Range(1, 10).map(i => {
+    val testCases = Range(1, 10).par.map(i => {
       logger.info("test: " + i)
       TestCase(dbHandler.getRecord("journals-sigir-Aoe90a"), 0.1, 50, 3, 0.05)
     })
