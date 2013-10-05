@@ -11,10 +11,18 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
+    println(dbHandler.records.count(r => {
+      println("checking " + r.name)
+      ContentParser.detectType(r) match {
+        case Some(t) => t == CitationMark.Type.Number
+        case None    => false
+      }
+    }))
+
+    /*dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
       case Some(r) => println(r.name)
       case None => println("None")
-    }
+    }*/
 
     /*ContentParser.findAllCitations(dbHandler.getRecord("journals-tog-ChenWC11")) match {
       case Some(iter) => iter.foreach(p => logger.info(p._1 + "\t" + p._2))
