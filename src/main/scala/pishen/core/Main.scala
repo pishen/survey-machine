@@ -1,15 +1,19 @@
 package pishen.core
 
 import org.slf4j.LoggerFactory
+import scalax.io.Resource
 import pishen.db.DBHandler
-import scala.util.Random
-import pishen.db.CitationMark
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
+    
+    ContentParser.findAllCitations(dbHandler.getRecord("journals-tog-ChenWC11")) match {
+      case Some(iter) => iter.foreach(p => logger.info(p._1 + "\t" + p._2))
+      case None => logger.info("None")
+    }
 
     /*val testCases = (1 to 50).par.map(i => {
       logger.info("test: " + i)
@@ -18,7 +22,7 @@ object Main {
     logger.info("cociationAP: " + testCases.map(_.cocitationAP).max)
     logger.info("katzAP: " + testCases.map(_.katzAP).max)*/
 
-    val testCases = dbHandler.records.filter(r => {
+    /*val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == CitationMark.Type.Number &&
       r.outgoingRecords.filter(_.citationType == CitationMark.Type.Number).length >= 18
@@ -33,6 +37,6 @@ object Main {
     logger.info("C avg of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).sum / 10).sum / testCases.length))
     logger.info("K normal MAP: " + (testCases.map(_.head.katzAP).sum / testCases.length))
     logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
-    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))
+    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))*/
   }
 }

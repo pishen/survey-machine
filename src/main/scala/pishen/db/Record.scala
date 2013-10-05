@@ -1,17 +1,24 @@
 package pishen.db
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-
 import org.neo4j.graphdb.Direction
 import org.neo4j.graphdb.DynamicRelationshipType
 import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.RelationshipType
 import org.slf4j.LoggerFactory
+import scala.io.Source
+import scalax.io.Resource
+import java.io.IOException
 
 class Record(node: Node) {
   private val logger = LoggerFactory.getLogger("Record")
 
   def nodeId = node.getId()
+  def fileContent = try {
+    Some(Resource.fromFile("text-records/" + name).string)
+  } catch {
+    case e: IOException => None
+  }
 
   //properties
   def name = getStringProperty(Record.Name)
@@ -25,14 +32,7 @@ class Record(node: Node) {
 
   //relationships
   def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
-  def outgoingRecords = try {
-    outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
-  } catch {
-    case ex: java.util.NoSuchElementException => {
-      logger.error("exception at Record: " + name)
-      throw ex
-    }
-  }
+  def outgoingRecords = outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
   def incomingRecords = incomingReferences.map(_.startRecord).distinct
 
   def allReferences = outgoingReferences ++ incomingReferences
@@ -52,6 +52,7 @@ class Record(node: Node) {
     }
   def canEqual(other: Any) = other.isInstanceOf[Record]
   override def hashCode = nodeId.hashCode
+
 }
 
 object Record {

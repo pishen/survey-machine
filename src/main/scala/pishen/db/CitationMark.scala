@@ -1,6 +1,6 @@
 package pishen.db
 
-class CitationMark {
+class CitationMark(content: String) {
 
 }
 
