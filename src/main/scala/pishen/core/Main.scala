@@ -18,16 +18,19 @@ object Main {
         case None    => false
       }
     }))*/
-    
+
     dbHandler.records.find(r => {
       ContentParser.detectType(r) match {
         case Some(t) => t == CitationMark.Type.Number
         case None    => false
       }
     }) match {
-      case Some(r) => ContentParser.findAllCitations(r) match {
-        case Some(iter) => iter.foreach(println _)
-        case None => println("No citations")
+      case Some(r) => {
+        println("record: " + r.name)
+        ContentParser.findAllCitations(r) match {
+          case Some(iter) => iter.foreach(println _)
+          case None       => println("No citations")
+        }
       }
       case None => println("None")
     }
