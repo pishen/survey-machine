@@ -11,13 +11,26 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    println(dbHandler.records.count(r => {
+    /*println(dbHandler.records.count(r => {
       println("checking " + r.name)
       ContentParser.detectType(r) match {
         case Some(t) => t == CitationMark.Type.Number
         case None    => false
       }
-    }))
+    }))*/
+    
+    dbHandler.records.find(r => {
+      ContentParser.detectType(r) match {
+        case Some(t) => t == CitationMark.Type.Number
+        case None    => false
+      }
+    }) match {
+      case Some(r) => ContentParser.findAllCitations(r) match {
+        case Some(iter) => iter.foreach(println _)
+        case None => println("No citations")
+      }
+      case None => println("None")
+    }
 
     /*dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
       case Some(r) => println(r.name)
