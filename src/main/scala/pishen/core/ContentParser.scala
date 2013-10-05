@@ -19,7 +19,7 @@ object ContentParser {
             }
           })
         }).toSeq.distinct.length
-        if(refCount == record.allReferences.length) Some(CitationMark.Type.Number)
+        if(refCount == record.outgoingReferences.length) Some(CitationMark.Type.Number)
         else Some(CitationMark.Type.Unknown)
       }
       case None => None
