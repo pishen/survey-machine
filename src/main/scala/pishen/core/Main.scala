@@ -3,18 +3,24 @@ package pishen.core
 import org.slf4j.LoggerFactory
 import scalax.io.Resource
 import pishen.db.DBHandler
+import pishen.db.CitationMark
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
-    
-    println(dbHandler.getRecord("journals-tog-ChenWC11").fileContent match {
-      case Some(s) => s
-      case None => "None"
-    })
-    
+
+    dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
+      case Some(r) => {
+        ContentParser.findAllCitations(r) match {
+          case Some(iter) => iter.foreach(p => println(p._1 + "\t" + p._2))
+          case None       => println("None")
+        }
+      }
+      case None => println("None")
+    }
+
     /*ContentParser.findAllCitations(dbHandler.getRecord("journals-tog-ChenWC11")) match {
       case Some(iter) => iter.foreach(p => logger.info(p._1 + "\t" + p._2))
       case None => logger.info("None")
