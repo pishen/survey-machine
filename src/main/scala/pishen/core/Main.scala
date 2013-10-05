@@ -10,10 +10,15 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
     
-    ContentParser.findAllCitations(dbHandler.getRecord("journals-tog-ChenWC11")) match {
+    println(dbHandler.getRecord("journals-tog-ChenWC11").fileContent match {
+      case Some(s) => s
+      case None => "None"
+    })
+    
+    /*ContentParser.findAllCitations(dbHandler.getRecord("journals-tog-ChenWC11")) match {
       case Some(iter) => iter.foreach(p => logger.info(p._1 + "\t" + p._2))
       case None => logger.info("None")
-    }
+    }*/
 
     /*val testCases = (1 to 50).par.map(i => {
       logger.info("test: " + i)
