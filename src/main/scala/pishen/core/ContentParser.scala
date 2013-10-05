@@ -13,14 +13,16 @@ object ContentParser {
           m.matched.init.tail.split(",").flatMap(s => {
             if (s.contains("-")) {
               val range = s.split("-").map(_.toInt)
-              (range.head to range.last)
+              range.head to range.last
             } else {
               Seq(s.toInt)
             }
           })
         }).toSeq.distinct.length
-        if(refCount == record.outgoingReferences.length) Some(CitationMark.Type.Number)
-        else Some(CitationMark.Type.Unknown)
+        if(refCount != 0 && refCount == record.outgoingReferences.length)
+          Some(CitationMark.Type.Number)
+        else 
+          Some(CitationMark.Type.Unknown)
       }
       case None => None
     }
