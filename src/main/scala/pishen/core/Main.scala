@@ -12,12 +12,7 @@ object Main {
     val dbHandler = new DBHandler("new-graph-db")
 
     dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
-      case Some(r) => {
-        ContentParser.findAllCitations(r) match {
-          case Some(iter) => iter.foreach(p => println(p._1 + "\t" + p._2))
-          case None       => println("None")
-        }
-      }
+      case Some(r) => println(r.name)
       case None => println("None")
     }
 
