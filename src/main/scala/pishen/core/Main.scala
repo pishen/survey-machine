@@ -20,7 +20,7 @@ object Main {
       }
     }))*/
 
-    val tx = dbHandler.beginTx()
+    /*val tx = dbHandler.beginTx()
     try {
       dbHandler.records.foreach(r => {
         println("checking " + r.name)
@@ -29,14 +29,9 @@ object Main {
       tx.success()
     } finally {
       tx.finish()
-    }
+    }*/
 
-    /*dbHandler.records.find(r => {
-      ContentParser.detectType(r) match {
-        case Some(t) => t == Record.CitationType.Number
-        case None    => false
-      }
-    }) match {
+    dbHandler.records.find(r => ContentParser.detectType(r) == Record.CitationType.Number) match {
       case Some(r) => {
         println("record: " + r.name)
         ContentParser.findAllCitations(r) match {
@@ -45,7 +40,7 @@ object Main {
         }
       }
       case None => println("None")
-    }*/
+    }
 
     /*dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
       case Some(r) => println(r.name)
