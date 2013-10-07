@@ -18,6 +18,8 @@ class DBHandler(path: String) {
     logger.info("shutdown graphDB: " + path)
     graphDB.shutdown()
   }
+  
+  def beginTx() = graphDB.beginTx()
 
   private val typeIndex: Index[Node] = graphDB.index().forNodes(DBHandler.TypeIndex)
   private val recordIndex: Index[Node] = graphDB.index().forNodes(DBHandler.RecordIndex)

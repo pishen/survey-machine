@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import scalax.io.Resource
 import pishen.db.DBHandler
 import pishen.db.CitationMark
+import pishen.db.Record
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
@@ -19,9 +20,20 @@ object Main {
       }
     }))*/
 
-    dbHandler.records.find(r => {
+    val tx = dbHandler.beginTx()
+    try {
+      dbHandler.records.foreach(r => {
+        println("checking " + r.name)
+        r.writeCitationType(ContentParser.detectType(r))
+      })
+      tx.success()
+    } finally {
+      tx.finish()
+    }
+
+    /*dbHandler.records.find(r => {
       ContentParser.detectType(r) match {
-        case Some(t) => t == CitationMark.Type.Number
+        case Some(t) => t == Record.CitationType.Number
         case None    => false
       }
     }) match {
@@ -33,7 +45,7 @@ object Main {
         }
       }
       case None => println("None")
-    }
+    }*/
 
     /*dbHandler.records.find(r => r.citationType == CitationMark.Type.Number) match {
       case Some(r) => println(r.name)

@@ -6,6 +6,7 @@ import pishen.db.CitationMark
 object ContentParser {
   val numberRegex = """\[[1-9]\d{0,2}(-[1-9]\d{0,2})?(,[1-9]\d{0,2}(-[1-9]\d{0,2})?)?\]""".r
 
+  //TODO clean duplicate code
   def detectType(record: Record) = {
     record.fileContent match {
       case Some(c) => {
@@ -20,11 +21,11 @@ object ContentParser {
           })
         }).toSeq.distinct.length
         if(refCount != 0 && refCount == record.outgoingReferences.length)
-          Some(CitationMark.Type.Number)
+          Record.CitationType.Number
         else 
-          Some(CitationMark.Type.Unknown)
+          Record.CitationType.Unknown
       }
-      case None => None
+      case None => Record.CitationType.Unknown
     }
   }
 

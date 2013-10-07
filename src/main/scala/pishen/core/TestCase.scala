@@ -24,7 +24,7 @@ object TestCase {
   def apply(source: Record, hideRatio: Double, topK: Int, katzStopLevel: Int, decay: Double) = {
     val f = (r: Record) => r != source &&
       r.year <= source.year &&
-      r.citationType == CitationMark.Type.Number
+      r.citationType == Record.CitationType.Number
     val shuffleRefs = Random.shuffle(source.outgoingRecords.filter(f))
     val ansSize = (shuffleRefs.size * hideRatio).toInt
     val answers = shuffleRefs.take(ansSize).toSet

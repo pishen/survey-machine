@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import scala.io.Source
 import scalax.io.Resource
 import java.io.IOException
+import Record.CitationType
 
 class Record(node: Node) {
   private val logger = LoggerFactory.getLogger("Record")
@@ -27,8 +28,10 @@ class Record(node: Node) {
   def year = getStringProperty(Record.Year).toInt
   def emb = getStringProperty(Record.Emb)
   def refFetched = getStringProperty(Record.RefFetched)
-  def citationType = getStringProperty(Record.CitationType)
+  def citationType = getStringProperty(CitationType.toString)
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
+
+  def writeCitationType(cType: String) = node.setProperty(CitationType.toString, cType)
 
   //relationships
   def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
@@ -63,7 +66,12 @@ object Record {
   val Year = "YEAR"
   val Emb = "EMB"
   val RefFetched = "REF_FETCHED"
-  val CitationType = "CITATION_TYPE"
+  object CitationType {
+    override def toString = "CITATION_TYPE"
+    val Number = "NUMBER"
+    val Text = "TEXT"
+    val Unknown = "UNKNOWN"
+  }
   //relationship
   val Ref = DynamicRelationshipType.withName("REF")
 }
