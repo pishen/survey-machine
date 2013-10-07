@@ -50,7 +50,8 @@ object TestCase {
       else
         computeKatz(level + 1, levelRecords.toSeq, mergedRankSeq)
     }
-    val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
+    //val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
+    val katzRank = Seq.empty[(Record, Double)]
     new TestCase(source, answers, cocitationRank, katzRank)
   }
 }
