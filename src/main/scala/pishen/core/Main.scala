@@ -60,7 +60,7 @@ object Main {
       logger.info("check record: " + r.name)
       r.citationType == Record.CitationType.Number
     }).map(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length).toSeq
-      .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.foreach(p => println(p._1 + "\t" + p._2))
+      .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.foreach(p => println(p._1 + "," + p._2))
 
     /*val testCases = (1 to 50).par.map(i => {
       logger.info("test: " + i)
