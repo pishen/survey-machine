@@ -56,11 +56,11 @@ object Main {
 
     //graph structure testing
 
-    dbHandler.records.filter(r => {
+    /*dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == Record.CitationType.Number
     }).map(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length).toSeq
-      .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.foreach(p => println(p._1 + "," + p._2))
+      .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.foreach(p => println(p._1 + "," + p._2))*/
 
     /*val testCases = (1 to 50).par.map(i => {
       logger.info("test: " + i)
@@ -69,13 +69,13 @@ object Main {
     logger.info("cociationAP: " + testCases.map(_.cocitationAP).max)
     logger.info("katzAP: " + testCases.map(_.katzAP).max)*/
 
-    /*val testCases = dbHandler.records.filter(r => {
+    val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == Record.CitationType.Number &&
-      r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 20
+      r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 10
     }).map(r => {
       logger.info("create testcases")
-      (1 to 10).map(i => TestCase(r, 0.5, 50, 3, 0.05))
+      (1 to 10).map(i => TestCase(r, 0.1, 50, 3, 0.05))
     }).toSeq
 
     logger.info("# of Records: " + testCases.length)
@@ -84,6 +84,6 @@ object Main {
     logger.info("C avg of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).sum / 10).sum / testCases.length))
     logger.info("K normal MAP: " + (testCases.map(_.head.katzAP).sum / testCases.length))
     logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
-    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))*/
+    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))
   }
 }

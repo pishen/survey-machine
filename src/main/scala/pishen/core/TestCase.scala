@@ -26,7 +26,10 @@ object TestCase {
       r.year <= source.year &&
       r.citationType == Record.CitationType.Number
     val shuffleRefs = Random.shuffle(source.outgoingRecords.filter(f))
-    val ansSize = (shuffleRefs.size * hideRatio).toInt
+    val ansSize = {
+      val rawSize = (shuffleRefs.size * hideRatio).toInt
+      if (rawSize == 0) 1 else rawSize
+    }
     val answers = shuffleRefs.take(ansSize).toSet
     val seeds = shuffleRefs.drop(ansSize)
     val seedSet = seeds.toSet
@@ -44,14 +47,14 @@ object TestCase {
         .groupBy(_._1).mapValues(_.map(_._2).sum)
       val mergedRankSeq = (preRankSeq ++ levelRecords.mapValues(_ * pow(decay, level)).toSeq)
         .groupBy(_._1).mapValues(_.map(_._2).sum).toSeq
-      
-      if(level == katzStopLevel)
+
+      if (level == katzStopLevel)
         mergedRankSeq.filterNot(seedSet contains _._1).sortBy(_._2).reverse.take(topK)
       else
         computeKatz(level + 1, levelRecords.toSeq, mergedRankSeq)
     }
-    //val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
-    val katzRank = Seq.empty[(Record, Double)]
+    val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
+    //val katzRank = Seq.empty[(Record, Double)]
     new TestCase(source, answers, cocitationRank, katzRank)
   }
 }
