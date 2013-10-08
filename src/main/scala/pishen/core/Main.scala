@@ -56,9 +56,10 @@ object Main {
 
     //graph structure testing
 
-    dbHandler.records
+    val result = dbHandler.records
       .map(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length).toSeq
-      .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.foreach(p => println(p._1 + "," + p._2))
+      .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.map(p => p._1 + "," + p._2)
+    Resource.fromFile("degree-stat").writeStrings(result, "\n")
 
     /*dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
