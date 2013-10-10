@@ -16,7 +16,10 @@ class Reference(node: Node) {
   def refIndex = getStringProperty(Reference.RefIndex).toInt
   def content = getStringProperty(Reference.Content)
   def links = node.getProperty(Reference.Links).asInstanceOf[Array[String]]
+  def offsets = node.getProperty(Reference.Offsets).asInstanceOf[Array[Int]]
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
+  
+  def writeOffsets(offsets: Seq[Int]) = node.setProperty(Reference.Offsets, offsets.toArray)
 
   //relationships
   def startRecord = 
@@ -32,7 +35,8 @@ object Reference {
   //key
   val RefIndex = "REF_INDEX"
   val Content = "CONTENT"
-  val Links = "LINKS"
+  val Links = "LINKS" //Array[String]
+  val Offsets = "OFFSETS" //Array[Int]
   //relationship
   val Ref = DynamicRelationshipType.withName("REF")
 }

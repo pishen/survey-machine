@@ -74,7 +74,7 @@ object Main {
     logger.info("cociationAP: " + testCases.map(_.cocitationAP).max)
     logger.info("katzAP: " + testCases.map(_.katzAP).max)*/
 
-    val testCases = dbHandler.records.filter(r => {
+    /*val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
@@ -89,6 +89,24 @@ object Main {
     logger.info("C avg of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).sum / 10).sum / testCases.length))
     logger.info("K normal MAP: " + (testCases.map(_.head.katzAP).sum / testCases.length))
     logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
-    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))
+    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))*/
+
+    //citations
+
+    //write all citation offsets for Number Records
+    val tx = dbHandler.beginTx()
+    try {
+      dbHandler.records.filter(r => {
+        logger.info("check record: " + r.name)
+        r.citationType == Record.CitationType.Number
+      }).foreach(r => {
+        logger.info("write offsets")
+        ContentParser.writeOffsetsForAllRef(r)
+      })
+      tx.success()
+    } finally {
+      tx.finish()
+    }
+
   }
 }
