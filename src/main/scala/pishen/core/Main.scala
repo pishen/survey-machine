@@ -94,19 +94,21 @@ object Main {
     //citations
 
     //write all citation offsets for Number Records
-    val tx = dbHandler.beginTx()
-    try {
-      dbHandler.records.filter(r => {
-        logger.info("check record: " + r.name)
-        r.citationType == Record.CitationType.Number
-      }).foreach(r => {
-        logger.info("write offsets")
+
+    dbHandler.records.filter(r => {
+      logger.info("check record: " + r.name)
+      r.citationType == Record.CitationType.Number
+    }).foreach(r => {
+      logger.info("write offsets")
+      val tx = dbHandler.beginTx()
+      try {
         ContentParser.writeOffsetsForAllRef(r)
-      })
-      tx.success()
-    } finally {
-      tx.finish()
-    }
+        tx.success()
+      } finally {
+        tx.finish()
+      }
+
+    })
 
   }
 }
