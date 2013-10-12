@@ -70,11 +70,11 @@ object TestCase {
             val distance = ref.offsets.flatMap(offset =>
               targetRef.offsets.map(targetOffset => (targetOffset - offset).abs))
               .min / startR.length.toDouble
-            (targetRef.endRecord.get, distance)
+            (targetRef.endRecord.get, 1 - distance)
           })
         })
       })
-      flat.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2).take(topK).map(_._1)
+      flat.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2).reverse.take(topK).map(_._1)
     }
     new TestCase(source, answers, cocitationRank, katzRank, newCocitationRank)
   }
