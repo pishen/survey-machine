@@ -25,8 +25,9 @@ object ContentParser {
   def detectType(record: Record) = {
     findAllCitations(record) match {
       case Some(seq) => {
-        val refCount = seq.map(_._1).distinct.length
-        if (refCount != 0 && refCount == record.outgoingReferences.length)
+        val parsedRefIndices = seq.map(_._1).distinct
+        val refIndices = record.outgoingReferences.map(_.refIndex)
+        if (parsedRefIndices.sorted == refIndices.sorted)
           Record.CitationType.Number
         else
           Record.CitationType.Unknown

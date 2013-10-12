@@ -20,6 +20,7 @@ class Reference(node: Node) {
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
 
   def writeOffsets(offsets: Seq[Int]) = node.setProperty(Reference.Offsets, offsets.toArray)
+  def eraseOffsets() = node.removeProperty(Reference.Offsets)
 
   //relationships
   def startRecord =
