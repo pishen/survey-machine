@@ -37,7 +37,7 @@ class Record(node: Node) {
 
   //relationships
   def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
-  def outgoingRecords = outgoingReferences.filter(_.hasEndRecord).map(_.endRecord).distinct
+  def outgoingRecords = outgoingReferences.map(_.endRecord).filter(_ != None).map(_.get).distinct
   def incomingRecords = incomingReferences.map(_.startRecord).distinct
 
   def allReferences = outgoingReferences ++ incomingReferences

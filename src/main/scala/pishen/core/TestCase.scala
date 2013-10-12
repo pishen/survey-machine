@@ -9,9 +9,11 @@ class TestCase(
   val source: Record,
   val answers: Set[Record],
   val cocitationRank: Seq[(Record, Int)],
-  val katzRank: Seq[(Record, Double)]) {
+  val katzRank: Seq[(Record, Double)],
+  val newCocitationRank: Seq[Record]) {
   val cocitationAP = computeAP(cocitationRank.map(_._1))
   val katzAP = computeAP(katzRank.map(_._1))
+  val newCocitationAP = computeAP(newCocitationRank)
   private def computeAP(rankSeq: Seq[Record]) = {
     val precisions = rankSeq.zipWithIndex.filter(answers contains _._1).zipWithIndex.map(p => {
       (p._2 + 1) / (p._1._2 + 1).toDouble
@@ -53,8 +55,27 @@ object TestCase {
       else
         computeKatz(level + 1, levelRecords.toSeq, mergedRankSeq)
     }
-    val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
-    //val katzRank = Seq.empty[(Record, Double)]
-    new TestCase(source, answers, cocitationRank, katzRank)
+    //val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
+    val katzRank = Seq.empty[(Record, Double)]
+    val newCocitationRank = {
+      val flat = seeds.flatMap(seed => {
+        seed.incomingReferences.filter(ref => f(ref.startRecord)).flatMap(ref => {
+          val startR = ref.startRecord
+          startR.outgoingReferences.filter(targetRef => {
+            targetRef.endRecord match {
+              case Some(r) => !seedSet.contains(r) && f(r)
+              case None    => false
+            }
+          }).map(targetRef => {
+            val distance = ref.offsets.flatMap(offset =>
+              targetRef.offsets.map(targetOffset => (targetOffset - offset).abs))
+              .min / startR.length.toDouble
+            (targetRef.endRecord.get, distance)
+          })
+        })
+      })
+      flat.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2).take(topK).map(_._1)
+    }
+    new TestCase(source, answers, cocitationRank, katzRank, newCocitationRank)
   }
 }

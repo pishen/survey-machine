@@ -11,22 +11,24 @@ class Reference(node: Node) {
   private val logger = LoggerFactory.getLogger("Reference")
 
   def nodeId = node.getId()
-  
+
   //properties
   def refIndex = getStringProperty(Reference.RefIndex).toInt
   def content = getStringProperty(Reference.Content)
   def links = node.getProperty(Reference.Links).asInstanceOf[Array[String]]
   def offsets = node.getProperty(Reference.Offsets).asInstanceOf[Array[Int]]
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
-  
+
   def writeOffsets(offsets: Seq[Int]) = node.setProperty(Reference.Offsets, offsets.toArray)
 
   //relationships
-  def startRecord = 
+  def startRecord =
     getRelationships(Direction.INCOMING, Reference.Ref).map(rel => new Record(rel.getStartNode())).head
-  def hasEndRecord = !getRelationships(Direction.OUTGOING, Reference.Ref).isEmpty
-  def endRecord =
-    getRelationships(Direction.OUTGOING, Reference.Ref).map(rel => new Record(rel.getEndNode())).head
+  def endRecord = {
+    val rels = getRelationships(Direction.OUTGOING, Reference.Ref)
+    if (rels.isEmpty) None
+    else Some(rels.map(rel => new Record(rel.getEndNode())).head)
+  }
   private def getRelationships(direction: Direction, relType: RelationshipType) =
     node.getRelationships(direction, relType).asScala.iterator.toSeq
 }
