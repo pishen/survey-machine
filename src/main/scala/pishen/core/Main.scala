@@ -56,7 +56,7 @@ object Main {
 
     //graph structure testing
 
-    val testCases = dbHandler.records.find(r => {
+    /*val testCases = dbHandler.records.find(r => {
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 30
     }) match {
       case Some(r) => (1 to 10).map(i => {
@@ -68,9 +68,9 @@ object Main {
     logger.info("C MAP of 10: " + (testCases.map(_.cocitationAP).sum / 10))
     logger.info("C best AP of 10: " + (testCases.map(_.cocitationAP).max))
     logger.info("NC MAP of 10: " + (testCases.map(_.newCocitationAP).sum / 10))
-    logger.info("NC best AP of 10: " + (testCases.map(_.newCocitationAP).max))
+    logger.info("NC best AP of 10: " + (testCases.map(_.newCocitationAP).max))*/
 
-    /*val testCases = dbHandler.records.filter(r => {
+    val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
@@ -80,12 +80,14 @@ object Main {
     }).toSeq
 
     logger.info("# of Records: " + testCases.length)
-    logger.info("C normal MAP: " + (testCases.map(_.head.cocitationAP).sum / testCases.length))
+    //logger.info("C normal MAP: " + (testCases.map(_.head.cocitationAP).sum / testCases.length))
     logger.info("C best of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).max).sum / testCases.length))
     logger.info("C avg of 10 MAP: " + (testCases.map(_.map(_.cocitationAP).sum / 10).sum / testCases.length))
-    logger.info("K normal MAP: " + (testCases.map(_.head.katzAP).sum / testCases.length))
-    logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
-    logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))*/
+    //logger.info("K normal MAP: " + (testCases.map(_.head.katzAP).sum / testCases.length))
+    //logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
+    //logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))
+    logger.info("NC best of 10 MAP: " + (testCases.map(_.map(_.newCocitationAP).max).sum / testCases.length))
+    logger.info("NC avg of 10 MAP: " + (testCases.map(_.map(_.newCocitationAP).sum / 10).sum / testCases.length))
 
     //citations
 
