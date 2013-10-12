@@ -109,6 +109,25 @@ object Main {
       }
 
     })
+    
+    //write all article's length
+    
+    dbHandler.records.filter(r => {
+      logger.info("check record: " + r.name)
+      r.citationType == Record.CitationType.Number
+    }).foreach(r => {
+      logger.info("write length")
+      val tx = dbHandler.beginTx
+      try {
+        r.fileContent match {
+          case Some(c) => r.writeLength(c.length())
+          case None => throw new Exception("Number Record must have content")
+        }
+        tx.success()
+      } finally {
+        tx.finish()
+      }
+    })
 
   }
 }
