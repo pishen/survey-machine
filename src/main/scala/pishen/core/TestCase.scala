@@ -69,7 +69,7 @@ object TestCase {
           }).map(targetRef => {
             val distance = ref.offsets.flatMap(offset =>
               targetRef.offsets.map(targetOffset => (targetOffset - offset).abs))
-              .min / startR.length.toDouble
+              .min / startR.longestPairLength.toDouble
             (targetRef.endRecord.get, 1 - distance)
           })
         })

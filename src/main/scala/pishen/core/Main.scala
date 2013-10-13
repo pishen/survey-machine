@@ -76,7 +76,7 @@ object Main {
     logger.info("NC MAP of 10: " + (testCases.map(_.newCocitationAP).sum / 10))
     logger.info("NC best AP of 10: " + (testCases.map(_.newCocitationAP).max))*/
 
-    /*val testCases = dbHandler.records.filter(r => {
+    val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
@@ -93,7 +93,7 @@ object Main {
     //logger.info("K best of 10 MAP: " + (testCases.map(_.map(_.katzAP).max).sum / testCases.length))
     //logger.info("K avg of 10 MAP: " + (testCases.map(_.map(_.katzAP).sum / 10).sum / testCases.length))
     logger.info("NC best of 10 MAP: " + (testCases.map(_.map(_.newCocitationAP).max).sum / testCases.length))
-    logger.info("NC avg of 10 MAP: " + (testCases.map(_.map(_.newCocitationAP).sum / 10).sum / testCases.length))*/
+    logger.info("NC avg of 10 MAP: " + (testCases.map(_.map(_.newCocitationAP).sum / 10).sum / testCases.length))
 
     //citations
 
@@ -134,7 +134,7 @@ object Main {
     })*/
 
     //write longest pair length
-    dbHandler.records.filter(r => {
+    /*dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == Record.CitationType.Number &&
       r.outgoingReferences.length > 1
@@ -153,7 +153,7 @@ object Main {
       } finally {
         tx.finish()
       }
-    })
+    })*/
 
   }
 }
