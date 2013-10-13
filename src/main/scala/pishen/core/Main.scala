@@ -82,7 +82,7 @@ object Main {
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
     }).map(r => {
       logger.info("create testcases")
-      (1 to 10).map(i => TestCase(r, 0.1, 50, 3, 0.05))
+      (1 to 10).map(i => TestCase(r, 0.3, 50, 3, 0.05))
     }).toSeq
 
     logger.info("# of Records: " + testCases.length)
