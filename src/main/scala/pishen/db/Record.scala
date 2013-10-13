@@ -30,10 +30,12 @@ class Record(node: Node) {
   def refFetched = getStringProperty(Record.RefFetched)
   def citationType = getStringProperty(CitationType.toString)
   def length = node.getProperty(Record.Length).asInstanceOf[Int]
+  def longestPairLength = node.getProperty(Record.LongestPairLength).asInstanceOf[Int]
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
 
   def writeCitationType(cType: String) = node.setProperty(CitationType.toString, cType)
   def writeLength(length: Int) = node.setProperty(Record.Length, length)
+  def writeLongestPairLength(length: Int) = node.setProperty(Record.LongestPairLength, length)
 
   //relationships
   def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
@@ -69,6 +71,7 @@ object Record {
   val Emb = "EMB"
   val RefFetched = "REF_FETCHED"
   val Length = "LENGTH"
+  val LongestPairLength = "LongestPairLength"
   object CitationType {
     override def toString = "CITATION_TYPE"
     val Number = "NUMBER"

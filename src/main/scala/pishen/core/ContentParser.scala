@@ -45,4 +45,5 @@ object ContentParser {
       case None => throw new IllegalArgumentException("record must have type Number")
     }
   }
+  
 }
