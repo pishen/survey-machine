@@ -136,7 +136,8 @@ object Main {
     //write longest pair length
     dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
-      r.citationType == Record.CitationType.Number
+      r.citationType == Record.CitationType.Number &&
+      r.outgoingReferences.length > 1
     }).foreach(r => {
       logger.info("write longest pair length")
 
