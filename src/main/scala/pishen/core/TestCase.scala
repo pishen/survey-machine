@@ -7,6 +7,7 @@ import pishen.db.CitationMark
 
 class TestCase(
   val source: Record,
+  val seeds: Set[Record],
   val answers: Set[Record],
   val cocitationRank: Seq[(Record, Int)],
   val katzRank: Seq[(Record, Double)],
@@ -76,6 +77,6 @@ object TestCase {
       })
       flat.groupBy(_._1).mapValues(_.map(_._2).sum).toSeq.sortBy(_._2).reverse.take(topK).map(_._1)
     }
-    new TestCase(source, answers, cocitationRank, katzRank, newCocitationRank)
+    new TestCase(source, seedSet, answers, cocitationRank, katzRank, newCocitationRank)
   }
 }

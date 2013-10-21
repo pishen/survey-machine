@@ -62,10 +62,32 @@ object Main {
 
     //graph structure testing
     
-    val result = dbHandler.records
+    /*val result = dbHandler.records
       .map(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length).toSeq
       .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.map(p => p._1 + "," + p._2)
-    Resource.fromFile("degree-stat").writeStrings(result, "\n")
+    val file = Resource.fromFile("degree-stat")
+    file.truncate(0)
+    file.writeStrings(result, "\n")*/
+    
+    val source = dbHandler.records.filter(r => {
+      r.name.contains("sigir")
+    }).maxBy(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length)
+    
+    logger.info("name: " + source.name + " title: " + source.title)
+    val testCases = (1 to 10).map(i => TestCase(source, 0.3, 50, 3, 0.05))
+    testCases.foreach(t => {
+      logger.info("=====testcase=====")
+      logger.info("seeds:")
+      t.seeds.foreach(r => logger.info(r.name + "\t" + r.title))
+      logger.info("answers:")
+      t.answers.foreach(r => logger.info(r.name + "\t" + r.title))
+      logger.info("cocitation:")
+      t.cocitationRank.foreach(p => logger.info(p._1.name + "\t" + p._1.title))
+      logger.info("new-cocitation:")
+      t.newCocitationRank.foreach(r => logger.info(r.name + "\t" + r.title))
+      logger.info("cocitation AP: " + t.cocitationAP)
+      logger.info("new-cocitation AP: " + t.newCocitationAP)
+    })
 
     /*val testCases = dbHandler.records.find(r => {
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 30
