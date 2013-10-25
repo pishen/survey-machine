@@ -62,6 +62,7 @@ object Main {
 
     //graph structure testing
     
+    //degree statistic
     /*val result = dbHandler.records
       .map(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length).toSeq
       .groupBy(i => i).mapValues(_.length).toSeq.sortBy(_._1).reverse.map(p => p._1 + "," + p._2)
@@ -69,7 +70,20 @@ object Main {
     file.truncate(0)
     file.writeStrings(result, "\n")*/
     
-    val source = dbHandler.records.filter(r => {
+    //rank list length stat
+    dbHandler.records.filter(r => {
+      logger.info("check record: " + r.name)
+      //r.citationType == Record.CitationType.Number &&
+      r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
+    }).map(r => {
+      logger.info("create testcases")
+      TestCase(r, 0.1, 50, 3, 0.05)
+    }).map(_.cocitationRank.size).toSeq
+    .groupBy(i => i).mapValues(_.length).toSeq
+    .sortBy(_._1).foreach(p => println(p._1 + "\t" + p._2))
+    
+    //list the details of a testcase
+    /*val source = dbHandler.records.filter(r => {
       r.name.contains("sigir")
     }).maxBy(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length)
     
@@ -87,8 +101,9 @@ object Main {
       t.newCocitationRank.foreach(r => logger.info(r.name + "\t" + r.title))
       logger.info("cocitation AP: " + t.cocitationAP)
       logger.info("new-cocitation AP: " + t.newCocitationAP)
-    })
+    })*/
 
+    //test on one source
     /*val testCases = dbHandler.records.find(r => {
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 30
     }) match {
@@ -103,6 +118,7 @@ object Main {
     logger.info("NC MAP of 10: " + (testCases.map(_.newCocitationAP).sum / 10))
     logger.info("NC best AP of 10: " + (testCases.map(_.newCocitationAP).max))*/
 
+    //main test
     /*val testCases = dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       //r.citationType == Record.CitationType.Number &&
@@ -125,7 +141,6 @@ object Main {
     //citations
 
     //write all citation offsets for Number Records
-
     /*dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == Record.CitationType.Number
@@ -142,7 +157,6 @@ object Main {
     })*/
 
     //write all article's length
-
     /*dbHandler.records.filter(r => {
       logger.info("check record: " + r.name)
       r.citationType == Record.CitationType.Number
