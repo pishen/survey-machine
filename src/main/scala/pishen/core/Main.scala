@@ -80,7 +80,7 @@ object Main {
       TestCase(r, 0.1, 50, 3, 0.05)
     }).map(_.cocitationRank.size).toSeq
     .groupBy(i => i).mapValues(_.length).toSeq
-    .sortBy(_._1).foreach(p => println(p._1 + "\t" + p._2))
+    .sortBy(_._1).foreach(p => logger.info(p._1 + "\t" + p._2))
     
     //list the details of a testcase
     /*val source = dbHandler.records.filter(r => {
