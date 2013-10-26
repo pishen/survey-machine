@@ -70,8 +70,17 @@ object Main {
     file.truncate(0)
     file.writeStrings(result, "\n")*/
     
-    //rank list length stat
+    //improvement stat
     val testCase = dbHandler.records.filter(r => {
+      r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
+    }).flatMap(r => {
+      (1 to 5).map(i => TestCase(r, 0.3, 50, 3, 0.05))
+    }).filter(_.cocitationRank.size == 50).toSeq
+    .sortBy(t => t.newCocitationAP - t.cocitationAP).reverse
+    .foreach(t => logger.info((t.newCocitationAP - t.cocitationAP).toString))
+    
+    //best TestCase
+    /*val testCase = dbHandler.records.filter(r => {
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
     }).flatMap(r => {
@@ -102,7 +111,7 @@ object Main {
         logger.info(p._1.title + "\t" + change)
     })
     logger.info("cocitation AP: " + testCase.cocitationAP)
-    logger.info("new cocitation AP: " + testCase.newCocitationAP)
+    logger.info("new cocitation AP: " + testCase.newCocitationAP)*/
     
     //list the details of a testcase
     /*val source = dbHandler.records.filter(r => {
