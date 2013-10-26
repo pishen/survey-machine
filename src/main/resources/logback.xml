@@ -10,12 +10,12 @@
 	</appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>survey-machine.log</file>
+		<file>logfile</file>
 		<append>false</append>
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
 			by default -->
 		<encoder>
-			<pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			<pattern>%-5level || %msg%n
 			</pattern>
 		</encoder>
 	</appender>

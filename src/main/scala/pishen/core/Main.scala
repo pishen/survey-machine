@@ -71,16 +71,38 @@ object Main {
     file.writeStrings(result, "\n")*/
     
     //rank list length stat
-    dbHandler.records.filter(r => {
-      logger.info("check record: " + r.name)
+    val testCase = dbHandler.records.filter(r => {
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
-    }).map(r => {
-      logger.info("create testcases")
-      TestCase(r, 0.1, 50, 3, 0.05)
-    }).map(_.cocitationRank.size).toSeq
-    .groupBy(i => i).mapValues(_.length).toSeq
-    .sortBy(_._1).foreach(p => logger.info(p._1 + "\t" + p._2))
+    }).flatMap(r => {
+      (1 to 10).map(i => TestCase(r, 0.3, 50, 3, 0.05))
+    }).filter(_.cocitationRank.size == 50).toSeq
+    .maxBy(t => t.newCocitationAP - t.cocitationAP)
+    
+    logger.info("source: " + testCase.source.title)
+    logger.info("seeds:")
+    testCase.seeds.foreach(r => logger.info(r.title))
+    logger.info("answers:")
+    testCase.answers.foreach(r => logger.info(r.title))
+    logger.info("cocitation:")
+    testCase.cocitationRank.foreach(p => {
+      if(testCase.answers.contains(p._1))
+        logger.info(p._1.title + "\t(*)")
+      else
+        logger.info(p._1.title)
+    })
+    logger.info("new cocitation:")
+    val cocitation = testCase.cocitationRank.map(_._1)
+    testCase.newCocitationRank.zipWithIndex.foreach(p => {
+      val preIndex = cocitation.indexOf(p._1)
+      val change = if(preIndex >= 0) (preIndex - p._2).toString else "new"
+      if(testCase.answers.contains(p._1))
+        logger.info(p._1.title + "\t" + change + "\t(*)")
+      else
+        logger.info(p._1.title + "\t" + change)
+    })
+    logger.info("cocitation AP: " + testCase.cocitationAP)
+    logger.info("new cocitation AP: " + testCase.newCocitationAP)
     
     //list the details of a testcase
     /*val source = dbHandler.records.filter(r => {
