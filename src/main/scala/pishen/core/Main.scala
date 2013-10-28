@@ -1,17 +1,18 @@
 package pishen.core
 
 import org.slf4j.LoggerFactory
-import scalax.io.Resource
 import pishen.db.DBHandler
 import pishen.db.CitationMark
 import pishen.db.Record
+import java.io.File
+import java.io.PrintWriter
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
-    
+
     //content parsing
 
     /*println(dbHandler.records.count(r => {
@@ -61,7 +62,7 @@ object Main {
     }*/
 
     //graph structure testing
-    
+
     //degree statistic
     /*val result = dbHandler.records
       .map(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length).toSeq
@@ -69,16 +70,30 @@ object Main {
     val file = Resource.fromFile("degree-stat")
     file.truncate(0)
     file.writeStrings(result, "\n")*/
-    
+
+    //AP statistic
+    val testCases = dbHandler.records
+      .filter(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12)
+      .flatMap(r => {
+        (1 to 5).map(i => TestCase(r, 0.3, 50, 3, 0.05))
+      }).filter(_.cocitationRank.size == 50).toSeq
+
+    writeTo("cocitation.csv"){out => 
+      testCases.sortBy(_.cocitationAP).reverse.foreach(t => out.println(t.cocitationAP))
+    }
+    writeTo("new-cocitation.csv"){out =>
+      testCases.sortBy(_.newCocitationAP).reverse.foreach(t => out.println(t.newCocitationAP))
+    }
+
     //improvement stat
-    val testCase = dbHandler.records.filter(r => {
+    /*val testCase = dbHandler.records.filter(r => {
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
     }).flatMap(r => {
       (1 to 5).map(i => TestCase(r, 0.3, 50, 3, 0.05))
     }).filter(_.cocitationRank.size == 50).toSeq
     .sortBy(t => t.newCocitationAP - t.cocitationAP).reverse
-    .foreach(t => logger.info((t.newCocitationAP - t.cocitationAP).toString))
-    
+    .foreach(t => logger.info((t.newCocitationAP - t.cocitationAP).toString))*/
+
     //best TestCase
     /*val testCase = dbHandler.records.filter(r => {
       //r.citationType == Record.CitationType.Number &&
@@ -112,7 +127,7 @@ object Main {
     })
     logger.info("cocitation AP: " + testCase.cocitationAP)
     logger.info("new cocitation AP: " + testCase.newCocitationAP)*/
-    
+
     //list the details of a testcase
     /*val source = dbHandler.records.filter(r => {
       r.name.contains("sigir")
@@ -226,6 +241,11 @@ object Main {
         tx.finish()
       }
     })*/
+
+    def writeTo(filename: String)(op: PrintWriter => Unit) {
+      val out = new PrintWriter(filename)
+      try { op(out) } finally { out.close() }
+    }
 
   }
 }
