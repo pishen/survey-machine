@@ -144,16 +144,20 @@ object Main {
     }
     
     val testCases = dbHandler.records.filter(r => {
+      logger.info("check Record " + r.name)
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
     }).flatMap(r => {
-      (1 to 10).map(i => TestCase(r, 0.3, 50, 3, 0.05))
+      logger.info("create testcase")
+      (1 to 5).map(i => TestCase(r, 0.3, 50, 3, 0.05))
     }).filter(_.cocitationRank.size == 50).toSeq
 
     val bestCase = testCases.maxBy(t => t.newCocitationAP - t.cocitationAP)
     val worstCase = testCases.minBy(t => t.newCocitationAP - t.cocitationAP)
     
+    logger.info("dump best")
     dump(bestCase, "testcase-best.csv")
+    logger.info("dump worst")
     dump(worstCase, "testcase-worst.csv")
 
     //list the details of a testcase
