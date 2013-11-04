@@ -153,8 +153,8 @@ object Main {
     val bestCase = testCases.maxBy(t => t.newCocitationAP - t.cocitationAP)
     val worstCase = testCases.minBy(t => t.newCocitationAP - t.cocitationAP)
     
-    dump(bestCase, "testcase-best")
-    dump(worstCase, "testcase-worst")
+    dump(bestCase, "testcase-best.csv")
+    dump(worstCase, "testcase-worst.csv")
 
     //list the details of a testcase
     /*val source = dbHandler.records.filter(r => {
