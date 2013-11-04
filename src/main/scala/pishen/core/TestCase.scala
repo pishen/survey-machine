@@ -9,10 +9,10 @@ class TestCase(
   val source: Record,
   val seeds: Set[Record],
   val answers: Set[Record],
-  val cocitationRank: Seq[(Record, Int)],
+  val cocitationRank: Seq[Record],
   val katzRank: Seq[(Record, Double)],
   val newCocitationRank: Seq[Record]) {
-  val cocitationAP = computeAP(cocitationRank.map(_._1))
+  val cocitationAP = computeAP(cocitationRank)
   val katzAP = computeAP(katzRank.map(_._1))
   val newCocitationAP = computeAP(newCocitationRank)
   private def computeAP(rankSeq: Seq[Record]) = {
@@ -40,7 +40,7 @@ object TestCase {
       val flat = seeds.flatMap(seed =>
         seed.incomingRecords.filter(f).flatMap(middle =>
           middle.outgoingRecords.filter(r => !seedSet.contains(r) && f(r))))
-      flat.groupBy(r => r).mapValues(_.length).toSeq.sortBy(_._2).reverse.take(topK)
+      flat.groupBy(r => r).mapValues(_.length).toSeq.sortBy(_._2).reverse.take(topK).map(_._1)
     }
     def computeKatz(level: Int,
                     preLevelRecords: Seq[(Record, Int)],

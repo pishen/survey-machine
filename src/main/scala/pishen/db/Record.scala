@@ -7,18 +7,18 @@ import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.RelationshipType
 import org.slf4j.LoggerFactory
 import scala.io.Source
-import scalax.io.Resource
-import java.io.IOException
+import resource._
 import Record.CitationType
+import java.io.FileNotFoundException
 
 class Record(node: Node) {
   private val logger = LoggerFactory.getLogger("Record")
 
   def nodeId = node.getId()
   def fileContent = try {
-    Some(Resource.fromFile("text-records/" + name).string)
+    managed(Source.fromFile("text-records/" + name)).map(_.mkString).opt
   } catch {
-    case e: IOException => None
+    case ex: FileNotFoundException => None
   }
 
   //properties

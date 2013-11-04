@@ -6,6 +6,7 @@ import pishen.db.CitationMark
 import pishen.db.Record
 import java.io.File
 import java.io.PrintWriter
+import resource._
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
@@ -72,7 +73,7 @@ object Main {
     file.writeStrings(result, "\n")*/
 
     //AP statistic
-    val testCases = dbHandler.records
+    /*val testCases = dbHandler.records
       .filter(_.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12)
       .flatMap(r => {
         (1 to 5).map(i => TestCase(r, 0.3, 50, 3, 0.05))
@@ -83,7 +84,7 @@ object Main {
     }
     writeTo("new-cocitation.csv"){out =>
       testCases.sortBy(_.newCocitationAP).reverse.foreach(t => out.println(t.newCocitationAP))
-    }
+    }*/
 
     //improvement stat
     /*val testCase = dbHandler.records.filter(r => {
@@ -95,38 +96,65 @@ object Main {
     .foreach(t => logger.info((t.newCocitationAP - t.cocitationAP).toString))*/
 
     //best TestCase
-    /*val testCase = dbHandler.records.filter(r => {
+    def dump(testCase: TestCase, filename: String) = {
+      val f = (r: Record) => r != testCase.source &&
+        r.year <= testCase.source.year &&
+        r.citationType == Record.CitationType.Number
+
+      managed(new PrintWriter(filename)).foreach(out => {
+        out.println("source:")
+        out.println(testCase.source.title)
+        out.println("cocitation AP:")
+        out.println(testCase.cocitationAP)
+        out.println("new cocitation AP:")
+        out.println(testCase.newCocitationAP)
+        out.println("seeds:")
+        testCase.seeds.foreach(r => out.println(r.title))
+        out.println()
+        testCase.answers.foreach(ans => {
+          out.println("answer:")
+          val cocitationIndex =
+            if (testCase.cocitationRank.contains(ans)) testCase.cocitationRank.indexOf(ans) else 50
+          val newCocitationIndex =
+            if (testCase.newCocitationRank.contains(ans)) testCase.newCocitationRank.indexOf(ans) else 50
+          val change = cocitationIndex - newCocitationIndex
+          out.println(ans.title + "\t" + cocitationIndex + "->" + newCocitationIndex + "\t" + change)
+          out.println("cocitings:")
+          ans.incomingReferences.foreach(ansRef => {
+            val cociting = ansRef.startRecord
+            if (f(cociting)) {
+              cociting.outgoingReferences.filter(_.endRecord match {
+                case Some(end) => testCase.seeds.contains(end)
+                case None      => false
+              }).foreach(seedRef => {
+                val minPair = ansRef.offsets
+                  .flatMap(ansOff => seedRef.offsets.map(seedOff => Seq(ansOff, seedOff).sorted))
+                  .minBy(seq => seq.last - seq.head)
+                val section = cociting.fileContent match {
+                  case Some(content) =>
+                    content.substring(minPair.head - 20, minPair.last + 20).replaceAll("\n", " ")
+                  case None => "file content error"
+                }
+                out.println(cociting.title + "\t" + ansRef.refIndex + "\t" + seedRef.refIndex + "\t" + section)
+              })
+            }
+          })
+        })
+      })
+    }
+    
+    val testCases = dbHandler.records.filter(r => {
       //r.citationType == Record.CitationType.Number &&
       r.outgoingRecords.filter(_.citationType == Record.CitationType.Number).length >= 12
     }).flatMap(r => {
       (1 to 10).map(i => TestCase(r, 0.3, 50, 3, 0.05))
     }).filter(_.cocitationRank.size == 50).toSeq
-    .maxBy(t => t.newCocitationAP - t.cocitationAP)
+
+    val bestCase = testCases.maxBy(t => t.newCocitationAP - t.cocitationAP)
+    val worstCase = testCases.minBy(t => t.newCocitationAP - t.cocitationAP)
     
-    logger.info("source: " + testCase.source.title)
-    logger.info("seeds:")
-    testCase.seeds.foreach(r => logger.info(r.title))
-    logger.info("answers:")
-    testCase.answers.foreach(r => logger.info(r.title))
-    logger.info("cocitation:")
-    testCase.cocitationRank.foreach(p => {
-      if(testCase.answers.contains(p._1))
-        logger.info(p._1.title + "\t(*)")
-      else
-        logger.info(p._1.title)
-    })
-    logger.info("new cocitation:")
-    val cocitation = testCase.cocitationRank.map(_._1)
-    testCase.newCocitationRank.zipWithIndex.foreach(p => {
-      val preIndex = cocitation.indexOf(p._1)
-      val change = if(preIndex >= 0) (preIndex - p._2).toString else "new"
-      if(testCase.answers.contains(p._1))
-        logger.info(p._1.title + "\t" + change + "\t(*)")
-      else
-        logger.info(p._1.title + "\t" + change)
-    })
-    logger.info("cocitation AP: " + testCase.cocitationAP)
-    logger.info("new cocitation AP: " + testCase.newCocitationAP)*/
+    dump(bestCase, "testcase-best")
+    dump(worstCase, "testcase-worst")
 
     //list the details of a testcase
     /*val source = dbHandler.records.filter(r => {
