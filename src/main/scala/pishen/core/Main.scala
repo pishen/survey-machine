@@ -22,7 +22,7 @@ object Main {
     //update longest pair distance?
     
     val refRegex = "[^a-zA-Z]*references?[^a-zA-Z]*".r
-    val parsed = dbHandler.records.map(r => {
+    /*val parsed = dbHandler.records.map(r => {
       r.fileContent match {
         case Some(c) => (true, c.lines.count(s => refRegex.findFirstIn(s.toLowerCase()).isEmpty == false) > 0)
         case None => (false, false)
@@ -30,6 +30,12 @@ object Main {
     }).toSeq
     
     logger.info("withContent: " + parsed.count(_._1))
-    logger.info("with references: " + parsed.count(p => p._1 && p._2))
+    logger.info("with references: " + parsed.count(p => p._1 && p._2))*/
+    dbHandler.records.flatMap(r => {
+      r.fileContent match {
+        case Some(c) => c.lines.filter(s => refRegex.findFirstIn(s.toLowerCase()).nonEmpty)
+        case None => Seq.empty
+      }
+    }).toSeq.distinct.foreach(s => logger.info(s))
   }
 }
