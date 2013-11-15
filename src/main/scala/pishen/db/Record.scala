@@ -7,30 +7,30 @@ import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.RelationshipType
 import org.slf4j.LoggerFactory
 import scala.io.Source
-import resource._
 import Record.CitationType
 import java.io.FileNotFoundException
+import scalax.io.Resource
 
 class Record(node: Node) {
   private val logger = LoggerFactory.getLogger("Record")
 
-  def nodeId = node.getId()
-  def fileContent = try {
-    managed(Source.fromFile("text-records/" + name)).map(_.mkString).opt
+  lazy val nodeId = node.getId()
+  lazy val fileContent = try {
+    Some(Resource.fromFile("text-records/" + name).string)
   } catch {
     case ex: FileNotFoundException => None
   }
 
   //properties
-  def name = getStringProperty(Record.Name)
-  def ee = getStringProperty(Record.EE)
-  def title = getStringProperty(Record.Title)
-  def year = getStringProperty(Record.Year).toInt
-  def emb = getStringProperty(Record.Emb)
-  def refFetched = getStringProperty(Record.RefFetched)
-  def citationType = getStringProperty(CitationType.toString)
-  def length = node.getProperty(Record.Length).asInstanceOf[Int]
-  def longestPairLength = node.getProperty(Record.LongestPairLength).asInstanceOf[Int]
+  lazy val name = getStringProperty(Record.Name)
+  lazy val ee = getStringProperty(Record.EE)
+  lazy val title = getStringProperty(Record.Title)
+  lazy val year = getStringProperty(Record.Year).toInt
+  lazy val emb = getStringProperty(Record.Emb)
+  lazy val refFetched = getStringProperty(Record.RefFetched)
+  lazy val citationType = getStringProperty(CitationType.toString)
+  lazy val length = node.getProperty(Record.Length).asInstanceOf[Int]
+  lazy val longestPairLength = node.getProperty(Record.LongestPairLength).asInstanceOf[Int]
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
 
   def writeCitationType(cType: String) = node.setProperty(CitationType.toString, cType)
@@ -38,14 +38,14 @@ class Record(node: Node) {
   def writeLongestPairLength(length: Int) = node.setProperty(Record.LongestPairLength, length)
 
   //relationships
-  def allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
-  def outgoingRecords = outgoingReferences.map(_.endRecord).filter(_ != None).map(_.get).distinct
-  def incomingRecords = incomingReferences.map(_.startRecord).distinct
+  lazy val allNeighborRecords = (outgoingRecords ++ incomingRecords).distinct
+  lazy val outgoingRecords = outgoingReferences.map(_.endRecord).filter(_ != None).map(_.get).distinct
+  lazy val incomingRecords = incomingReferences.map(_.startRecord).distinct
 
-  def allReferences = outgoingReferences ++ incomingReferences
-  def outgoingReferences =
+  lazy val allReferences = outgoingReferences ++ incomingReferences
+  lazy val outgoingReferences =
     getRelationships(Direction.OUTGOING, Record.Ref).map(rel => new Reference(rel.getEndNode()))
-  def incomingReferences =
+  lazy val incomingReferences =
     getRelationships(Direction.INCOMING, Record.Ref).map(rel => new Reference(rel.getStartNode()))
 
   private def getRelationships(direction: Direction, relType: RelationshipType) =

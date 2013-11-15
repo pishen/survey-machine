@@ -12,6 +12,6 @@ libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.0.13"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.2" % "test"
 
-libraryDependencies += "com.jsuereth" %% "scala-arm" % "1.3"
+libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2"
 
 
