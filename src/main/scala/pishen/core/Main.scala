@@ -23,7 +23,7 @@ object Main {
     
     val parsed = dbHandler.records.map(r => {
       r.fileContent match {
-        case Some(c) => (true, c.lines.count(_.toLowerCase() == "references") > 0)
+        case Some(c) => (true, c.lines.count(_.toLowerCase().matches("""references?""")) > 0)
         case None => (false, false)
       }
     }).toSeq
