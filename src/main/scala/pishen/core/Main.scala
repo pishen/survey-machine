@@ -34,7 +34,7 @@ object Main {
     dbHandler.records.flatMap(r => {
       r.fileContent match {
         case Some(c) => {
-          val matches = c.lines.filter(s => refRegex.pattern.matcher(s).matches())
+          val matches = c.lines.toSeq.filter(s => refRegex.pattern.matcher(s).matches())
           matches.drop(matches.length - 1)
         }
         case None => Seq.empty
