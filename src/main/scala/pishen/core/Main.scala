@@ -26,7 +26,7 @@ object Main {
         case Some(c) => (true, c.lines.count(_.toLowerCase() == "references") > 0)
         case None => (false, false)
       }
-    })
+    }).toSeq
     
     logger.info("withContent: " + parsed.count(_._1))
     logger.info("with references: " + parsed.count(p => p._1 && p._2))
