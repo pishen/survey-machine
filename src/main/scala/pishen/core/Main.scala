@@ -21,9 +21,10 @@ object Main {
     //update offsets
     //update longest pair distance?
     
+    val refRegex = "references?".r
     val parsed = dbHandler.records.map(r => {
       r.fileContent match {
-        case Some(c) => (true, c.lines.count(_.toLowerCase().matches("""references?""")) > 0)
+        case Some(c) => (true, c.lines.count(s => refRegex.findFirstIn(s.toLowerCase()).isEmpty == false) > 0)
         case None => (false, false)
       }
     }).toSeq
