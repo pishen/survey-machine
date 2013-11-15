@@ -33,7 +33,7 @@ object Main {
     logger.info("with references: " + parsed.count(p => p._1 && p._2))*/
     dbHandler.records.flatMap(r => {
       r.fileContent match {
-        case Some(c) => c.lines.filter(s => refRegex.findFirstIn(s.toLowerCase()).nonEmpty)
+        case Some(c) => c.lines.filter(s => refRegex.pattern.matcher(s).matches())
         case None => Seq.empty
       }
     }).toSeq.distinct.foreach(s => logger.info(s))
