@@ -2,6 +2,7 @@ package pishen.core
 
 import pishen.db.Record
 import pishen.db.CitationMark
+import math._
 
 object ContentParser {
   val numberRegex = """[1-9]\d{0,2}(-[1-9]\d{0,2})?(,[1-9]\d{0,2}(-[1-9]\d{0,2})?)?""".r
@@ -22,7 +23,7 @@ object ContentParser {
             })
           } else Seq.empty
         }).toSeq
-        if(citations.isEmpty) None else Some(citations)
+        if (citations.isEmpty) None else Some(citations)
       }
       case None => None
     }
@@ -42,13 +43,20 @@ object ContentParser {
     }
   }
 
-  def writeOffsetsForAllRef(record: Record) = {
-    findAllCitations(record) match {
-      case Some(seq) => record.outgoingReferences.foreach(ref => {
+  def writeContentInfo(record: Record) = {
+    if (record.citationType == Record.CitationType.Number) {
+      val citations = findAllCitations(record).get
+      //write offsets for each Reference
+      record.outgoingReferences.foreach(ref => {
         val refIndex = ref.refIndex
-        ref.writeOffsets(seq.filter(_._1 == refIndex).map(_._2))
+        ref.writeOffsets(citations.filter(_._1 == refIndex).map(_._2))
       })
-      case None => throw new IllegalArgumentException("record must have type Number")
+      //write content's length
+      record.writeLength(record.fileContent.get.length)
+      //write longest pair length
+      val longestLength = 
+        citations.map(c1 => citations.filter(_._1 != c1._1).map(c2 => abs(c2._2 - c1._2)).max).max
+      record.writeLongestPairLength(longestLength)
     }
   }
 
