@@ -54,7 +54,7 @@ object ContentParser {
       //write content's length
       record.writeLength(record.fileContent.get.length)
       //write longest pair length
-      val longestLength = 
+      val longestLength = if (record.outgoingReferences.length == 1) 1 else
         citations.map(c1 => citations.filter(_._1 != c1._1).map(c2 => abs(c2._2 - c1._2)).max).max
       record.writeLongestPairLength(longestLength)
     }
