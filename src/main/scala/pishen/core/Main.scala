@@ -20,11 +20,18 @@ object Main {
     //match for [NUMBER with white space]
     //update offsets
     //update longest pair distance?
-    
+
     dbHandler.records.foreach(r => {
       logger.info("check r: " + r.name)
-      ContentParser.writeContentInfo(r)
+      val tx = dbHandler.beginTx
+      try {
+        ContentParser.writeContentInfo(r)
+        tx.success()
+      } finally {
+        tx.finish()
+      }
+
     })
-    
+
   }
 }
