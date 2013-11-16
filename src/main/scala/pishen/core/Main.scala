@@ -22,6 +22,7 @@ object Main {
     //update longest pair distance?
     
     dbHandler.records.foreach(r => {
+      logger.info("check r: " + r.name)
       ContentParser.writeContentInfo(r)
     })
     
