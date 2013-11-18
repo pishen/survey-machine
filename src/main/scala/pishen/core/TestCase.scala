@@ -6,6 +6,7 @@ import scala.math._
 import pishen.db.CitationMark
 
 class TestCase(
+  val filter: Record => Boolean,
   val source: Record,
   val seeds: Set[Record],
   val answers: Set[Record],
@@ -79,6 +80,6 @@ object TestCase {
     //val katzRank = computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)])
     val katzRank = Seq.empty[(Record, Double)]*/
 
-    new TestCase(source, seedSet, answers, cocitationRank, newCocitationRank)
+    new TestCase(f, source, seedSet, answers, cocitationRank, newCocitationRank)
   }
 }
