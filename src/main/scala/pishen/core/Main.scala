@@ -17,14 +17,16 @@ object Main {
 
   def printTestCase(id: String, testCase: TestCase) {
     for (out <- managed(new PrintWriter(id + ".html"))) {
-      <ul>
-        <li>source: { testCase.source.title }</li>
-        <li>seeds:</li>
+      val res =
         <ul>
-          { testCase.seeds.map(r => <li> { r.title } </li>) }
+          <li>source: { testCase.source.title }</li>
+          <li>seeds:</li>
+          <ul>
+            { testCase.seeds.map(r => <li> { r.title } </li>) }
+          </ul>
+          <li>answers:</li>
         </ul>
-        <li>answers:</li>
-      </ul>
+      out.println(res.text)
     }
   }
 }
