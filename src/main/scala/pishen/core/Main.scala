@@ -13,7 +13,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
-    val source = dbHandler.records.find(r => r.fileContent.nonEmpty && r.outgoingRecords.length > 10).get
+    val source = dbHandler.records.find(r => r.fileContent.nonEmpty && r.outgoingRecords.length > 20).get
     val testCase = TestCase(source, 0.1, 50)
     printTestCase("test01", testCase)
   }
