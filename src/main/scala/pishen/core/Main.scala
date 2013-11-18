@@ -27,10 +27,10 @@ object Main {
 
     val testCases = dbHandler.records.filter(r => {
       logger.info("checking " + r.name)
-      r.outgoingRecords.length >= 100
+      r.outgoingRecords.length >= 25
     }).flatMap(r => {
       logger.info("create testCases")
-      (1 to 2).map(i => TestCase(r, 0.1, 50))
+      (1 to 10).map(i => TestCase(r, 0.1, 50))
     }).toSeq.sortBy(t => t.cocitationAP - t.newCocitationAP)
 
     for (out <- managed(new PrintWriter(dirName + "/root.html"))) {
