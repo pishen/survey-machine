@@ -21,10 +21,15 @@ object Main {
     val testCase = TestCase(source, 0.1, 50)*/
 
     val dirName = "test-cases"
-    ("rm -rf " + dirName).!
+    val res = ("rm -rf " + dirName).!
+    logger.info("rm -rf " + dirName + " exit code: " + res)
     new File(dirName).mkdir()
 
-    val testCases = dbHandler.records.filter(_.outgoingRecords.length >= 100).flatMap(r => {
+    val testCases = dbHandler.records.filter(r => {
+      logger.info("checking " + r.name)
+      r.outgoingRecords.length >= 100
+    }).flatMap(r => {
+      logger.info("create testCases")
       (1 to 2).map(i => TestCase(r, 0.1, 50))
     }).toSeq.sortBy(t => t.cocitationAP - t.newCocitationAP)
 
@@ -37,7 +42,7 @@ object Main {
               testCases.take(20).zipWithIndex.map(p => {
                 val subDirName = dirName + "/better" + p._2
                 printTestCase(subDirName, p._1)
-                <li>{ p._1.source.title }<a href={ subDirName + "/root.html" }> detail </a></li>
+                <li>{ p._1.source.title }<a href={ "better/" + p._2 + "/root.html" }> detail </a></li>
               })
             }
           </ol>
@@ -47,7 +52,7 @@ object Main {
               testCases.takeRight(20).reverse.zipWithIndex.map(p => {
                 val subDirName = dirName + "/worse" + p._2
                 printTestCase(subDirName, p._1)
-                <li>{ p._1.source.title }<a href={ subDirName + "/root.html" }> detail </a></li>
+                <li>{ p._1.source.title }<a href={ "worse/" + p._2 + "/root.html" }> detail </a></li>
               })
             }
           </ol>
