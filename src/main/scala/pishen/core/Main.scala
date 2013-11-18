@@ -1,27 +1,59 @@
 package pishen.core
 
-import java.io.PrintWriter
-import java.nio.file.Files
-import java.nio.file.Paths
-import org.slf4j.LoggerFactory
-import pishen.db.DBHandler
-import resource.managed
-import pishen.db.Record
 import java.io.File
+import java.io.PrintWriter
+
+import scala.Array.canBuildFrom
+import scala.sys.process.stringToProcess
+
+import org.slf4j.LoggerFactory
+
+import pishen.db.DBHandler
+import pishen.db.Record
+import resource.managed
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
-    val source = dbHandler.records.find(r => r.fileContent.nonEmpty && r.outgoingRecords.length > 20).get
-    val testCase = TestCase(source, 0.1, 50)
+    /*val source = dbHandler.records.find(r => r.fileContent.nonEmpty && r.outgoingRecords.length > 20).get
+    val testCase = TestCase(source, 0.1, 50)*/
 
     val dirName = "test-cases"
-    val dir = new File(dirName)
-    if (!dir.exists) dir.mkdir()
+    ("rm -rf " + dirName).!
+    new File(dirName).mkdir()
 
-    printTestCase(dirName + "/test01", testCase)
+    val testCases = dbHandler.records.filter(_.outgoingRecords.length >= 100).flatMap(r => {
+      (1 to 2).map(i => TestCase(r, 0.1, 50))
+    }).toSeq.sortBy(t => t.cocitationAP - t.newCocitationAP)
+
+    for (out <- managed(new PrintWriter(dirName + "/root.html"))) {
+      out.println {
+        <ul>
+          <li>better:</li>
+          <ol>
+            {
+              testCases.take(20).zipWithIndex.map(p => {
+                val subDirName = dirName + "/better" + p._2
+                printTestCase(subDirName, p._1)
+                <li>{ p._1.source.title }<a href={ subDirName + "/root.html" }> detail </a></li>
+              })
+            }
+          </ol>
+          <li>worse:</li>
+          <ol>
+            {
+              testCases.takeRight(20).reverse.zipWithIndex.map(p => {
+                val subDirName = dirName + "/worse" + p._2
+                printTestCase(subDirName, p._1)
+                <li>{ p._1.source.title }<a href={ subDirName + "/root.html" }> detail </a></li>
+              })
+            }
+          </ol>
+        </ul>
+      }
+    }
   }
 
   def printTestCase(dirName: String, testCase: TestCase) {
@@ -34,8 +66,7 @@ object Main {
       } else <span style="color:green;"> new </span>
     }
 
-    val dir = new File(dirName)
-    if (!dir.exists) dir.mkdir()
+    new File(dirName).mkdir()
     for (out <- managed(new PrintWriter(dirName + "/root.html"))) {
       out.println {
         <ul>
