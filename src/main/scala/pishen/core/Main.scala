@@ -26,7 +26,7 @@ object Main {
           </ul>
           <li>answers:</li>
         </ul>
-      out.println(res.text)
+      out.println(res)
     }
   }
 }
