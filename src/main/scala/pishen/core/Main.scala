@@ -62,7 +62,7 @@ object Main {
           <ol>
             {
               testCase.newCocitationRank.map(r =>
-                <li styple={ if (testCase.answers.contains(r)) "color:green;" else "" }>
+                <li style={ if (testCase.answers.contains(r)) "color:green;" else "" }>
                   { r.title }
                   { getChange(r) }
                   <a href={ r.name + ".html" }> details </a>
@@ -89,7 +89,7 @@ object Main {
                     seedRef.offsets.flatMap(seed => rankRef.offsets.map(rank => Seq(seed, rank)))
                       .minBy(s => (s.head - s.last).abs)
                   val startIndex = shortestPair.min - 15 max 0
-                  val endIndex = shortestPair.max + 15 min cociting.fileContent.get.length
+                  val endIndex = shortestPair.max + 18 min cociting.fileContent.get.length
                   <li>cociting: { cociting.title }</li>
                   <ul>
                     <li>seed: { seedRef.refIndex }</li>
