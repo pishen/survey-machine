@@ -18,7 +18,32 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    printTestCases(dbHandler)
+    //printTestCases(dbHandler)
+    
+    val tailNumberRecords = dbHandler.records.filter(_.citationType == Record.CitationType.Number).filter { r =>
+      println("checking " + r.name)
+      val outRefs = r.outgoingReferences
+      val sortedCitations = outRefs
+        .flatMap(ref => ref.offsets.map(off => (ref.refIndex, off))).sortBy(_._2)
+      outRefs.count(_.offsets.length > 1) == outRefs.length &&
+      sortedCitations.takeRight(outRefs.length).map(_._1) == outRefs.map(_.refIndex).sorted
+    }.toSeq
+
+    tailNumberRecords.foreach { r =>
+      println("updating " + r.name)
+      val tx = dbHandler.beginTx
+      try {
+        r.outgoingReferences.foreach { ref =>
+          val maxOff = ref.offsets.max
+          ref.writeOffsets(ref.offsets.filter(_ != maxOff))
+        }
+        tx.success()
+      } finally {
+        tx.finish()
+      }
+    }
+    
+    logger.info("updated: " + tailNumberRecords.length)
   }
 
   def printTestCases(dbHandler: DBHandler) = {
