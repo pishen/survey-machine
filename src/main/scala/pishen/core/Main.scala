@@ -26,7 +26,7 @@ object Main {
       val sortedCitations = outRefs
         .flatMap(ref => ref.offsets.map(off => (ref.refIndex, off))).sortBy(_._2)
       sortedCitations.takeRight(outRefs.length).map(_._1) == outRefs.map(_.refIndex).sorted
-    }
+    }.toSeq
 
     tailNumberRecords.foreach { r =>
       println("updating " + r.name)
