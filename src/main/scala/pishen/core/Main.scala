@@ -18,7 +18,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    printTestCases()
+    printTestCases(dbHandler)
   }
 
   def printTestCases(dbHandler: DBHandler) = {
