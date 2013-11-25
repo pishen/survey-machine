@@ -18,49 +18,31 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    //printTestCases(dbHandler)
-    
-    val tailNumberRecords = dbHandler.records.filter(_.citationType == Record.CitationType.Number).filter { r =>
-      println("checking " + r.name)
-      val outRefs = r.outgoingReferences
-      val sortedCitations = outRefs
-        .flatMap(ref => ref.offsets.map(off => (ref.refIndex, off))).sortBy(_._2)
-      sortedCitations.takeRight(outRefs.length).map(_._1) == outRefs.map(_.refIndex).sorted
-    }.toSeq
-
-    tailNumberRecords.foreach { r =>
-      println("updating " + r.name)
-      val tx = dbHandler.beginTx
-      try {
-        r.outgoingReferences.foreach { ref =>
-          val maxOff = ref.offsets.max
-          ref.writeOffsets(ref.offsets.filter(_ != maxOff))
-        }
-        tx.success()
-      } finally {
-        tx.finish()
-      }
-    }
-    
-    logger.info("updated: " + tailNumberRecords.length)
+    printTestCases(dbHandler)
   }
 
   def printTestCases(dbHandler: DBHandler) = {
-    val dirName = "test-cases"
+    val minRefSize = 25
+
+    val dirName = "test-cases-2"
     val res = ("rm -rf " + dirName).!
     logger.info("rm -rf " + dirName + " exit code: " + res)
     new File(dirName).mkdir()
 
     val testCases = dbHandler.records.filter(r => {
       logger.info("checking " + r.name)
-      r.outgoingRecords.length >= 25
+      r.outgoingRecords.length >= minRefSize
     }).flatMap(r => {
       logger.info("create testCases")
       (1 to 10).map(i => TestCase(r, 0.1, 50))
     }).toSeq.sortBy(t => t.cocitationAP - t.newCocitationAP)
 
-    Resource.fromOutputStream(new FileOutputStream(dirName + "/root.html")).write {
+    Resource.fromOutputStream(new FileOutputStream(dirName + "/index.html")).write {
       <ul>
+        <li>min reference size of source: { minRefSize }</li>
+        <li>total testCases: { testCases.length }</li>
+        <li>original MAP: { testCases.map(_.cocitationAP).sum / testCases.length }</li>
+        <li>new MAP: { testCases.map(_.newCocitationAP).sum / testCases.length }</li>
         <li>better:</li>
         <ol>
           {
