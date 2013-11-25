@@ -18,6 +18,10 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
+    printTestCases()
+  }
+
+  def printTestCases(dbHandler: DBHandler) = {
     val dirName = "test-cases"
     val res = ("rm -rf " + dirName).!
     logger.info("rm -rf " + dirName + " exit code: " + res)
