@@ -2,23 +2,21 @@ package pishen.core
 
 import java.io.File
 import java.io.PrintWriter
-
 import scala.Array.canBuildFrom
 import scala.sys.process.stringToProcess
-
 import org.slf4j.LoggerFactory
-
 import pishen.db.DBHandler
 import pishen.db.Record
-import resource.managed
+import scalax.io.Resource
+import java.io.FileWriter
+import scalax.io.Output
+import java.io.FileOutputStream
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
-    /*val source = dbHandler.records.find(r => r.fileContent.nonEmpty && r.outgoingRecords.length > 20).get
-    val testCase = TestCase(source, 0.1, 50)*/
 
     val dirName = "test-cases"
     val res = ("rm -rf " + dirName).!
@@ -33,31 +31,29 @@ object Main {
       (1 to 10).map(i => TestCase(r, 0.1, 50))
     }).toSeq.sortBy(t => t.cocitationAP - t.newCocitationAP)
 
-    for (out <- managed(new PrintWriter(dirName + "/root.html"))) {
-      out.println {
-        <ul>
-          <li>better:</li>
-          <ol>
-            {
-              testCases.take(20).zipWithIndex.map(p => {
-                val subDirName = dirName + "/better" + p._2
-                printTestCase(subDirName, p._1)
-                <li>{ p._1.source.title }<a href={ "better" + p._2 + "/root.html" }> detail </a></li>
-              })
-            }
-          </ol>
-          <li>worse:</li>
-          <ol>
-            {
-              testCases.takeRight(20).reverse.zipWithIndex.map(p => {
-                val subDirName = dirName + "/worse" + p._2
-                printTestCase(subDirName, p._1)
-                <li>{ p._1.source.title }<a href={ "worse" + p._2 + "/root.html" }> detail </a></li>
-              })
-            }
-          </ol>
-        </ul>
-      }
+    Resource.fromOutputStream(new FileOutputStream(dirName + "/root.html")).write {
+      <ul>
+        <li>better:</li>
+        <ol>
+          {
+            testCases.take(20).zipWithIndex.map(p => {
+              val subDirName = dirName + "/better" + p._2
+              printTestCase(subDirName, p._1)
+              <li>{ p._1.source.title }<a href={ "better" + p._2 + "/root.html" }> detail </a></li>
+            })
+          }
+        </ol>
+        <li>worse:</li>
+        <ol>
+          {
+            testCases.takeRight(20).reverse.zipWithIndex.map(p => {
+              val subDirName = dirName + "/worse" + p._2
+              printTestCase(subDirName, p._1)
+              <li>{ p._1.source.title }<a href={ "worse" + p._2 + "/root.html" }> detail </a></li>
+            })
+          }
+        </ol>
+      </ul>.toString
     }
   }
 
@@ -72,72 +68,68 @@ object Main {
     }
 
     new File(dirName).mkdir()
-    for (out <- managed(new PrintWriter(dirName + "/root.html"))) {
-      out.println {
+    Resource.fromOutputStream(new FileOutputStream(dirName + "/root.html")).write {
+      <ul>
+        <li>source: { testCase.source.title }</li>
+        <li>cocitationAP: { testCase.cocitationAP }</li>
+        <li>newCocitationAP: { testCase.newCocitationAP }</li>
+        <li>seeds:</li>
         <ul>
-          <li>source: { testCase.source.title }</li>
-          <li>cocitationAP: { testCase.cocitationAP }</li>
-          <li>newCocitationAP: { testCase.newCocitationAP }</li>
-          <li>seeds:</li>
-          <ul>
-            { testCase.seeds.map(r => <li> { r.title } </li>) }
-          </ul>
-          <li>answers:</li>
-          <ul>
-            { testCase.answers.map(r => <li> { r.title } </li>) }
-          </ul>
-          <li>cocitation:</li>
-          <ol>
-            {
-              testCase.cocitationRank.map(r =>
-                if (testCase.answers.contains(r)) <li style="color:green;">{ r.title }</li>
-                else <li>{ r.title }</li>)
-            }
-          </ol>
-          <li>new cocitation:</li>
-          <ol>
-            {
-              testCase.newCocitationRank.map(r =>
-                <li style={ if (testCase.answers.contains(r)) "color:green;" else "" }>
-                  { r.title }
-                  { getChange(r) }
-                  <a href={ r.name + ".html" }> details </a>
-                </li>)
-            }
-          </ol>
+          { testCase.seeds.map(r => <li> { r.title } </li>) }
         </ul>
-      }
+        <li>answers:</li>
+        <ul>
+          { testCase.answers.map(r => <li> { r.title } </li>) }
+        </ul>
+        <li>cocitation:</li>
+        <ol>
+          {
+            testCase.cocitationRank.map(r =>
+              if (testCase.answers.contains(r)) <li style="color:green;">{ r.title }</li>
+              else <li>{ r.title }</li>)
+          }
+        </ol>
+        <li>new cocitation:</li>
+        <ol>
+          {
+            testCase.newCocitationRank.map(r =>
+              <li style={ if (testCase.answers.contains(r)) "color:green;" else "" }>
+                { r.title }
+                { getChange(r) }
+                <a href={ r.name + ".html" }> details </a>
+              </li>)
+          }
+        </ol>
+      </ul>.toString
     }
 
     val f = testCase.filter
-    testCase.newCocitationRank.foreach(r => {
-      for (out <- managed(new PrintWriter(dirName + "/" + r.name + ".html"))) {
-        out.println {
-          <ul>
-            {
-              r.incomingReferences.filter(ref => f(ref.startRecord)).flatMap(rankRef => {
-                val cociting = rankRef.startRecord
-                cociting.outgoingReferences.filter(ref => {
-                  val target = ref.endRecord
-                  target.nonEmpty && testCase.seeds.contains(target.get)
-                }).map(seedRef => {
-                  val shortestPair =
-                    seedRef.offsets.flatMap(seed => rankRef.offsets.map(rank => Seq(seed, rank)))
-                      .minBy(s => (s.head - s.last).abs)
-                  val startIndex = shortestPair.min - 15 max 0
-                  val endIndex = shortestPair.max + 18 min cociting.fileContent.get.length
-                  <li>cociting: { cociting.title }</li>
-                  <ul>
-                    <li>seed: { seedRef.refIndex }</li>
-                    <li>rank: { rankRef.refIndex }</li>
-                    <li>{ cociting.fileContent.get.substring(startIndex, endIndex) }</li>
-                  </ul>
-                })
+    testCase.newCocitationRank.foreach { r =>
+      Resource.fromOutputStream(new FileOutputStream(dirName + "/" + r.name + ".html")).write {
+        <ul>
+          {
+            r.incomingReferences.filter(ref => f(ref.startRecord)).flatMap(rankRef => {
+              val cociting = rankRef.startRecord
+              cociting.outgoingReferences.filter(ref => {
+                val target = ref.endRecord
+                target.nonEmpty && testCase.seeds.contains(target.get)
+              }).map(seedRef => {
+                val shortestPair =
+                  seedRef.offsets.flatMap(seed => rankRef.offsets.map(rank => Seq(seed, rank)))
+                    .minBy(s => (s.head - s.last).abs)
+                val startIndex = shortestPair.min - 15 max 0
+                val endIndex = shortestPair.max + 18 min cociting.fileContent.get.length
+                <li>cociting: { cociting.title }</li>
+                <ul>
+                  <li>seed: { seedRef.refIndex }</li>
+                  <li>rank: { rankRef.refIndex }</li>
+                  <li>{ cociting.fileContent.get.substring(startIndex, endIndex) }</li>
+                </ul>
               })
-            }
-          </ul>
-        }
+            })
+          }
+        </ul>.toString
       }
-    })
+    }
   }
 }

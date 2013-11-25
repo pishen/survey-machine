@@ -10,22 +10,22 @@ import org.neo4j.graphdb.RelationshipType
 class Reference(node: Node) {
   private val logger = LoggerFactory.getLogger("Reference")
 
-  lazy val nodeId = node.getId()
+  def nodeId = node.getId()
 
   //properties
-  lazy val refIndex = getStringProperty(Reference.RefIndex).toInt
-  lazy val content = getStringProperty(Reference.Content)
-  lazy val links = node.getProperty(Reference.Links).asInstanceOf[Array[String]]
-  lazy val offsets = node.getProperty(Reference.Offsets).asInstanceOf[Array[Int]]
+  def refIndex = getStringProperty(Reference.RefIndex).toInt
+  def content = getStringProperty(Reference.Content)
+  def links = node.getProperty(Reference.Links).asInstanceOf[Array[String]]
+  def offsets = node.getProperty(Reference.Offsets).asInstanceOf[Array[Int]]
   private def getStringProperty(key: String) = node.getProperty(key).asInstanceOf[String]
 
   def writeOffsets(offsets: Seq[Int]) = node.setProperty(Reference.Offsets, offsets.toArray)
   def eraseOffsets() = node.removeProperty(Reference.Offsets)
 
   //relationships
-  lazy val startRecord =
+  def startRecord =
     getRelationships(Direction.INCOMING, Reference.Ref).map(rel => new Record(rel.getStartNode())).head
-  lazy val endRecord = {
+  def endRecord = {
     val rels = getRelationships(Direction.OUTGOING, Reference.Ref)
     if (rels.isEmpty) None
     else Some(rels.map(rel => new Record(rel.getEndNode())).head)
