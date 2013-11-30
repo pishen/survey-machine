@@ -48,7 +48,7 @@ object Main {
     }*/
 
     //update longestPairLength
-    dbHandler.records.foreach { r =>
+    dbHandler.records.filter(_.citationType == Record.CitationType.Number).foreach { r =>
       logger.info("update " + r.name)
       val longestLength =
         if (r.outgoingReferences.length == 1) 1
