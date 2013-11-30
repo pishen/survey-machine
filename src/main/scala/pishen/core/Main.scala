@@ -35,7 +35,8 @@ object Main {
             val tx = dbHandler.beginTx
             try {
               r.outgoingReferences.foreach { ref =>
-                ref.writeOffsets(ref.offsets.filter(_ < lastOffset))
+                val newOffsets = ref.offsets.filter(_ < lastOffset)
+                if(newOffsets.nonEmpty) ref.writeOffsets(newOffsets)
               }
               tx.success()
             } finally {
