@@ -1,16 +1,17 @@
 package pishen.core
 
 import java.io.File
-import java.io.PrintWriter
+import java.io.FileOutputStream
+
 import scala.Array.canBuildFrom
 import scala.sys.process.stringToProcess
+
 import org.slf4j.LoggerFactory
+
 import pishen.db.DBHandler
 import pishen.db.Record
+import pishen.db.Record.CitationType.Number
 import scalax.io.Resource
-import java.io.FileWriter
-import scalax.io.Output
-import java.io.FileOutputStream
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
@@ -22,7 +23,7 @@ object Main {
 
     //cutoff references
     val refRegex = """\n[^a-zA-Z]*references?[^a-zA-Z]*\n""".r
-    val numUpdated = dbHandler.records.count { r =>
+    val numUpdated = dbHandler.records.filter(_.citationType == Number).count { r =>
       logger.info("check " + r.name)
       r.fileContent match {
         case Some(c) => {
@@ -48,7 +49,7 @@ object Main {
     }
 
     //update longestPairLength
-    dbHandler.records.filter(_.citationType == Record.CitationType.Number).foreach { r =>
+    dbHandler.records.filter(_.citationType == Number).foreach { r =>
       logger.info("update " + r.name)
       val longestLength =
         if (r.outgoingReferences.length == 1) 1
