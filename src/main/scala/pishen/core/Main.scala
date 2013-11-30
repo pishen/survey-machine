@@ -21,7 +21,7 @@ object Main {
     //printTestCases(dbHandler)
 
     //cutoff references
-    /*val refRegex = """\n[^a-zA-Z]*references?[^a-zA-Z]*\n""".r
+    val refRegex = """\n[^a-zA-Z]*references?[^a-zA-Z]*\n""".r
     val numUpdated = dbHandler.records.count { r =>
       logger.info("check " + r.name)
       r.fileContent match {
@@ -45,7 +45,7 @@ object Main {
         }
         case None => false
       }
-    }*/
+    }
 
     //update longestPairLength
     dbHandler.records.filter(_.citationType == Record.CitationType.Number).foreach { r =>
