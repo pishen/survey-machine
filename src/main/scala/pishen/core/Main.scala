@@ -19,55 +19,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    //printTestCases(dbHandler)
+    printTestCases(dbHandler)
 
-    //cutoff references
-    val refRegex = """\n[^a-zA-Z]*references?[^a-zA-Z]*\n""".r
-    val numUpdated = dbHandler.records.filter(_.citationType == Number).count { r =>
-      logger.info("check " + r.name)
-      r.fileContent match {
-        case Some(c) => {
-          val allMatches = refRegex.findAllMatchIn(c.toLowerCase()).toSeq
-          if (allMatches.isEmpty) false
-          else {
-            val lastOffset = allMatches.last.start
-            //remove all citations after lastOffset
-            val tx = dbHandler.beginTx
-            try {
-              r.outgoingReferences.foreach { ref =>
-                val newOffsets = ref.offsets.filter(_ < lastOffset)
-                if(newOffsets.nonEmpty) ref.writeOffsets(newOffsets)
-              }
-              tx.success()
-            } finally {
-              tx.finish()
-            }
-            true
-          }
-        }
-        case None => false
-      }
-    }
-
-    //update longestPairLength
-    dbHandler.records.filter(_.citationType == Number).foreach { r =>
-      logger.info("update " + r.name)
-      val longestLength =
-        if (r.outgoingReferences.length == 1) 1
-        else {
-          val citations = r.outgoingReferences.flatMap(ref => ref.offsets.map(o => (ref.refIndex, o)))
-          citations.map(c1 => citations.filter(_._1 != c1._1).map(c2 => (c2._2 - c1._2).abs).max).max
-        }
-      val tx = dbHandler.beginTx
-      try {
-        r.writeLongestPairLength(longestLength)
-        tx.success()
-      } finally {
-        tx.finish()
-      }
-    }
-    
-    logger.info("num of reference sections cutoff: " + numUpdated)
   }
 
   def printTestCases(dbHandler: DBHandler) = {
