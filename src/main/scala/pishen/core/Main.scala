@@ -64,6 +64,8 @@ object Main {
         tx.finish()
       }
     }
+    
+    logger.info("num of reference sections cutoff: " + numUpdated)
   }
 
   def printTestCases(dbHandler: DBHandler) = {
