@@ -27,7 +27,7 @@ object Main {
       logger.info("check " + r.name)
       r.fileContent match {
         case Some(c) => {
-          val allMatches = refRegex.findAllMatchIn(c).toSeq
+          val allMatches = refRegex.findAllMatchIn(c.toLowerCase()).toSeq
           if (allMatches.isEmpty) false
           else {
             val lastOffset = allMatches.last.start
