@@ -14,7 +14,7 @@ import scalax.io.Resource
 class Record(node: Node) {
   private val logger = LoggerFactory.getLogger("Record")
 
-  def nodeId = node.getId()
+  lazy val nodeId = node.getId()
   def fileContent = try {
     Some(Resource.fromFile("text-records/" + name).string)
   } catch {

@@ -12,6 +12,7 @@ import pishen.db.DBHandler
 import pishen.db.Record
 import pishen.db.Record.CitationType.Number
 import scalax.io.Resource
+import math._
 
 object Main {
   private val logger = LoggerFactory.getLogger("Main")
@@ -19,129 +20,23 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
 
-    printTestCases(dbHandler)
+    val pearsonXYs = dbHandler.records.filter(r => {
+      println("checking " + r.name)
+      r.outgoingRecords.length >= 25
+    }).map(r => {
+      println("create testcase")
+      new TestCase(r, 0.2, 50).pearsonXYs
+    }).reduce((s1, s2) => s1.zip(s2).map(p => p._1 ++ p._2))
 
+    val xAvg = pearsonXYs.map(_(0)).sum / pearsonXYs.length
+    val yAvg = pearsonXYs.map(_(1)).sum / pearsonXYs.length
+    val nyAvg = pearsonXYs.map(_(2)).sum / pearsonXYs.length
+    val pXY = pearsonXYs.map(s => (s(0) - xAvg) * (s(1) - yAvg)).sum /
+      (sqrt(pearsonXYs.map(s => pow(s(0) - xAvg, 2)).sum) * sqrt(pearsonXYs.map(s => pow(s(1) - yAvg, 2)).sum))
+    val pXnY = pearsonXYs.map(s => (s(0) - xAvg) * (s(2) - nyAvg)).sum /
+      (sqrt(pearsonXYs.map(s => pow(s(0) - xAvg, 2)).sum) * sqrt(pearsonXYs.map(s => pow(s(2) - nyAvg, 2)).sum))
+    println("pXY: " + pXY)
+    println("pXnY: " + pXnY)
   }
 
-  def printTestCases(dbHandler: DBHandler) = {
-    val minRefSize = 25
-
-    val dirName = "test-cases-2"
-    val res = ("rm -rf " + dirName).!
-    logger.info("rm -rf " + dirName + " exit code: " + res)
-    new File(dirName).mkdir()
-
-    val testCases = dbHandler.records.filter(r => {
-      logger.info("checking " + r.name)
-      r.outgoingRecords.length >= minRefSize
-    }).flatMap(r => {
-      logger.info("create testCases")
-      (1 to 10).map(i => TestCase(r, 0.1, 50))
-    }).toSeq.sortBy(t => t.cocitationAP - t.newCocitationAP)
-
-    Resource.fromOutputStream(new FileOutputStream(dirName + "/index.html")).write {
-      <ul>
-        <li>min reference size of source: { minRefSize }</li>
-        <li>total testCases: { testCases.length }</li>
-        <li>original MAP: { testCases.map(_.cocitationAP).sum / testCases.length }</li>
-        <li>new MAP: { testCases.map(_.newCocitationAP).sum / testCases.length }</li>
-        <li>better:</li>
-        <ol>
-          {
-            testCases.take(20).zipWithIndex.map(p => {
-              val subDirName = dirName + "/better" + p._2
-              printTestCase(subDirName, p._1)
-              <li>{ p._1.source.title }<a href={ "better" + p._2 + "/root.html" }> detail </a></li>
-            })
-          }
-        </ol>
-        <li>worse:</li>
-        <ol>
-          {
-            testCases.takeRight(20).reverse.zipWithIndex.map(p => {
-              val subDirName = dirName + "/worse" + p._2
-              printTestCase(subDirName, p._1)
-              <li>{ p._1.source.title }<a href={ "worse" + p._2 + "/root.html" }> detail </a></li>
-            })
-          }
-        </ol>
-      </ul>.toString
-    }
-  }
-
-  def printTestCase(dirName: String, testCase: TestCase) {
-    def getChange(r: Record) = {
-      if (testCase.cocitationRank.contains(r)) {
-        val change = testCase.cocitationRank.indexOf(r) - testCase.newCocitationRank.indexOf(r)
-        if (change > 0) <span style="color:green">{ "+" + change }</span>
-        else if (change < 0) <span style="color:red">{ change }</span>
-        else <span style="color:black">{ change }</span>
-      } else <span style="color:green;"> new </span>
-    }
-
-    new File(dirName).mkdir()
-    Resource.fromOutputStream(new FileOutputStream(dirName + "/root.html")).write {
-      <ul>
-        <li>source: { testCase.source.title }</li>
-        <li>cocitationAP: { testCase.cocitationAP }</li>
-        <li>newCocitationAP: { testCase.newCocitationAP }</li>
-        <li>seeds:</li>
-        <ul>
-          { testCase.seeds.map(r => <li> { r.title } </li>) }
-        </ul>
-        <li>answers:</li>
-        <ul>
-          { testCase.answers.map(r => <li> { r.title } </li>) }
-        </ul>
-        <li>cocitation:</li>
-        <ol>
-          {
-            testCase.cocitationRank.map(r =>
-              if (testCase.answers.contains(r)) <li style="color:green;">{ r.title }</li>
-              else <li>{ r.title }</li>)
-          }
-        </ol>
-        <li>new cocitation:</li>
-        <ol>
-          {
-            testCase.newCocitationRank.map(r =>
-              <li style={ if (testCase.answers.contains(r)) "color:green;" else "" }>
-                { r.title }
-                { getChange(r) }
-                <a href={ r.name + ".html" }> details </a>
-              </li>)
-          }
-        </ol>
-      </ul>.toString
-    }
-
-    val f = testCase.filter
-    testCase.newCocitationRank.foreach { r =>
-      Resource.fromOutputStream(new FileOutputStream(dirName + "/" + r.name + ".html")).write {
-        <ul>
-          {
-            r.incomingReferences.filter(ref => f(ref.startRecord)).flatMap(rankRef => {
-              val cociting = rankRef.startRecord
-              cociting.outgoingReferences.filter(ref => {
-                val target = ref.endRecord
-                target.nonEmpty && testCase.seeds.contains(target.get)
-              }).map(seedRef => {
-                val shortestPair =
-                  seedRef.offsets.flatMap(seed => rankRef.offsets.map(rank => Seq(seed, rank)))
-                    .minBy(s => (s.head - s.last).abs)
-                val startIndex = shortestPair.min - 15 max 0
-                val endIndex = shortestPair.max + 18 min cociting.fileContent.get.length
-                <li>cociting: { cociting.title }</li>
-                <ul>
-                  <li>seed: { seedRef.refIndex }</li>
-                  <li>rank: { rankRef.refIndex }</li>
-                  <li>{ cociting.fileContent.get.substring(startIndex, endIndex) }</li>
-                </ul>
-              })
-            })
-          }
-        </ul>.toString
-      }
-    }
-  }
 }
