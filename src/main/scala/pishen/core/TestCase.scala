@@ -68,11 +68,11 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
       .flatMap(_.outgoingRecords.filter(_ != source)).distinct
       .combinations(2).map(s => (s.head, s.last)).toSeq
     val xs = pairs.map(p => if (srcRecords.contains(p._1) && srcRecords.contains(p._2)) 1 else 0)
-    //val xAvg = xs.sum / xs.length.toDouble
+    val xAvg = xs.sum / xs.length.toDouble
     val ys = pairs.map(p => {
       p._1.incomingRecords.filter(filter).intersect(p._2.incomingRecords.filter(filter)).length
     })
-    //val yAvg = ys.sum / ys.length.toDouble
+    val yAvg = ys.sum / ys.length.toDouble
     val nys = pairs.map(p => {
       p._1.incomingRecords.filter(filter).intersect(p._2.incomingRecords.filter(filter))
         .map(cociting => {
@@ -88,14 +88,15 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
           1 - distance
         }).sum
     })
-    //val nyAvg = nys.sum / nys.length
-    
-    //val sumXy = xs.map(_ - xAvg).zip(ys.map(_ - yAvg)).map(p => p._1 * p._2).sum
-    //val sumX2 = xs.map(x => pow(x - xAvg, 2)).sum
-    //val sumY2 = ys.map(y => pow(y - yAvg, 2)).sum
-    //val sumXny = xs.map(_ - xAvg).zip(nys.map(_ - nyAvg)).map(p => p._1 * p._2).sum
-    //val sumNy2 = nys.map(ny => pow(ny - nyAvg, 2)).sum
-    Seq(xs.map(_.toDouble), ys.map(_.toDouble), nys)
+    val nyAvg = nys.sum / nys.length
+
+    val pXY = xs.map(_ - xAvg).zip(ys.map(_ - yAvg)).map(p => p._1 * p._2).sum /
+      (sqrt(xs.map(x => pow(x - xAvg, 2)).sum) * sqrt(ys.map(y => pow(y - yAvg, 2)).sum))
+    val pXnY = xs.map(_ - xAvg).zip(nys.map(_ - nyAvg)).map(p => p._1 * p._2).sum /
+      (sqrt(xs.map(x => pow(x - xAvg, 2)).sum) * sqrt(nys.map(ny => pow(ny - nyAvg, 2)).sum))
+
+    (pXY, pXnY)
+    //Seq(xs.map(_.toDouble), ys.map(_.toDouble), nys)
   }
 
   //AP
