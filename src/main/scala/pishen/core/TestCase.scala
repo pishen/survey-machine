@@ -90,6 +90,14 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
         }).sum
     })
     val nyAvg = nys.sum / nys.length
+    
+    println("nys.sum: " + nys.sum)
+    println("length: " + nys.length)
+    println("nyAvg: " + nyAvg)
+    val sum = nys.map(ny => pow(ny - nyAvg, 2)).sum
+    val sq = sqrt(sum)
+    println("sum: " + sum)
+    println("sqrt: " + sq)
 
     val pXY = xs.map(_ - xAvg).zip(ys.map(_ - yAvg)).map(p => p._1 * p._2).sum /
       (sqrt(xs.map(x => pow(x - xAvg, 2)).sum) * sqrt(ys.map(y => pow(y - yAvg, 2)).sum))
