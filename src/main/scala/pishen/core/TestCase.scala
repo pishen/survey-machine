@@ -83,9 +83,10 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
           })
           val ref = pairRefs.head
           val targetRef = pairRefs.last
+          val longestPairLength = if(cociting.longestPairLength > 0) cociting.longestPairLength else 1
           val distance = ref.offsets.flatMap(offset =>
             targetRef.offsets.map(targetOffset => (targetOffset - offset).abs))
-            .min / cociting.longestPairLength.toDouble
+            .min / longestPairLength.toDouble
           1 - distance
         })
       if(scores.isEmpty) 0.0 else scores.sum
