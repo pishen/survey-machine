@@ -18,20 +18,18 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
     
-    val pearsonXYs = dbHandler.records.filter(r => {
+    "rm rXY".!
+    "rm rXnY".!
+    
+    dbHandler.records.filter(r => {
       println("checking " + r.name)
       r.outgoingRecords.length >= 25
     }).map(r => {
       println("create testcase")
-      new TestCase(r, 0.2, 50).pearsonXYs
-    }).toSeq
-    
-    Resource.fromWriter(new FileWriter("rXY")).writeStrings({
-      pearsonXYs.map(_._1).sorted.map(_.toString)
-    }, "\n")
-    Resource.fromWriter(new FileWriter("rXnY")).writeStrings({
-      pearsonXYs.map(_._2).sorted.map(_.toString)
-    }, "\n")
+      val pXYs = new TestCase(r, 0.2, 50).pearsonXYs
+      Resource.fromFile("rXY").write(pXYs._1 + "\n")
+      Resource.fromFile("rXnY").write(pXYs._2 + "\n")
+    })
 
     /*val pearsonXYs = dbHandler.records.filter(r => {
       println("checking " + r.name)

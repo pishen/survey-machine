@@ -25,6 +25,7 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
     flat.groupBy(r => r).mapValues(_.length).toSeq.sortBy(_._2).reverse.take(topK).map(_._1)
   }
   lazy val newCocitationRank = {
+    println("not lazy")
     val flat = seeds.flatMap(seed => {
       seed.incomingReferences.filter(filter apply _.startRecord).flatMap(ref => {
         val cociting = ref.startRecord
@@ -43,7 +44,7 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
   }
 
   //katz
-  private def computeKatz(level: Int,
+  /*private def computeKatz(level: Int,
                           preLevelRecords: Seq[(Record, Int)],
                           preRankSeq: Seq[(Record, Double)],
                           stopLevel: Int,
@@ -60,7 +61,7 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
       computeKatz(level + 1, levelRecords.toSeq, mergedRankSeq, stopLevel, decay)
   }
   lazy val katzRank =
-    computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)], stopLevel, decay)
+    computeKatz(1, seeds.map(r => (r, 1)), Seq.empty[(Record, Double)], stopLevel, decay)*/
 
   //pearson
   def pearsonXYs = {
@@ -107,6 +108,6 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
     if (answers.size == 0) 0.0 else precisions.sum / answers.size
   }
   lazy val cocitationAP = computeAP(cocitationRank)
-  lazy val katzAP = computeAP(katzRank.map(_._1))
+  //lazy val katzAP = computeAP(katzRank.map(_._1))
   lazy val newCocitationAP = computeAP(newCocitationRank)
 }
