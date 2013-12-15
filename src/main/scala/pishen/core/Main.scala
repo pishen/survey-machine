@@ -18,8 +18,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     val dbHandler = new DBHandler("new-graph-db")
     
-    "rm rXY".!
-    "rm rXnY".!
+    "rm -f rXY".!
+    "rm -f rXnY".!
     
     dbHandler.records.filter(r => {
       println("checking " + r.name)
