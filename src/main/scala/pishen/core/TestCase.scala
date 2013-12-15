@@ -75,7 +75,7 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
     })
     val yAvg = ys.sum / ys.length.toDouble
     val nys = pairs.map(p => {
-      p._1.incomingRecords.filter(filter).intersect(p._2.incomingRecords.filter(filter))
+      val scores = p._1.incomingRecords.filter(filter).intersect(p._2.incomingRecords.filter(filter))
         .map(cociting => {
           val pairRefs = cociting.outgoingReferences.filter(_.endRecord match {
             case Some(r) => r == p._1 || r == p._2
@@ -87,7 +87,8 @@ class TestCase(val source: Record, hideRatio: Double, topK: Int, stopLevel: Int 
             targetRef.offsets.map(targetOffset => (targetOffset - offset).abs))
             .min / cociting.longestPairLength.toDouble
           1 - distance
-        }).sum
+        })
+      if(scores.isEmpty) 0.0 else scores.sum
     })
     val nyAvg = nys.sum / nys.length
     
