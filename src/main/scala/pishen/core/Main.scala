@@ -22,10 +22,9 @@ object Main {
     "rm -f rXnY".!
     
     dbHandler.records.filter(r => {
-      println("checking " + r.name)
       r.outgoingRecords.length >= 25
     }).foreach(r => {
-      println("create testcase")
+      println("create testcase " + r.name)
       val pXYs = new TestCase(r, 0.2, 50).pearsonXYs
       Resource.fromFile("rXY").write(pXYs._1 + "\n")
       Resource.fromFile("rXnY").write(pXYs._2 + "\n")
