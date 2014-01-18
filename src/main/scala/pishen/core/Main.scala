@@ -15,7 +15,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     "mkdir google-scholar".!
 
-    val ports = 10000 to 10010
+    val ports = 10001 to 10010
     var port = ports.head
     val papers = new PaperIterator
     papers.filter(p => {
@@ -35,7 +35,7 @@ object Main {
         assert(!Resource.fromFile(file).string.contains("302 Moved"))
         
         port = Random.shuffle(ports.filter(_ != port)).head
-        Thread.sleep(5000)
+        Thread.sleep(10000)
       }
     })
   }
