@@ -34,7 +34,9 @@ object Main {
 
         assert(!Resource.fromFile(file).string.contains("302 Moved"))
         
-        port = Random.shuffle(ports.filter(_ != port)).head
+        port += 1
+        if(port > ports.last) port = ports.head
+        
         Thread.sleep(10000)
       }
     })
