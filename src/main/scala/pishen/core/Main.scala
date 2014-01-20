@@ -31,8 +31,8 @@ object Main {
       val file = new File("google-scholar/" + key + ".html")
       if (!file.exists() || Resource.fromFile(file).string.contains("302 Moved")) {
         logger.info("downloadScholar")
-        curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
-        assert(!Resource.fromFile(file).string.contains("302 Moved"))
+        val res = curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
+        assert(!Resource.fromFile(file).string.contains("302 Moved") && res == 0)
         true
       } else {
         false
@@ -45,7 +45,7 @@ object Main {
         val doid = ee.split("/").last
         val url = "http://dl.acm.org/citation.cfm?doid=" + doid + "&preflayout=flat"
         logger.info("downloadACM: " + url)
-        curl(url, file.getPath(), port)
+        assert(curl(url, file.getPath(), port) == 0)
         true
       } else {
         false
@@ -64,7 +64,8 @@ object Main {
           .find(_.endsWith(".pdf")) match {
             case Some(url) => {
               logger.info("downloadPDF: " + url)
-              curl(url, pdfFile.getPath(), port)
+              val res = curl(url, pdfFile.getPath(), port)
+              assert(res == 0 || res == 6)
               true
             }
             case None => false
@@ -99,7 +100,7 @@ object Main {
 
   def curl(url: String, output: String, port: Int) = {
     val ver = Random.shuffle(24 to 26).head.toString + ".0"
-    val res = Seq(
+    Seq(
       "curl",
       "-L",
       "-k",
@@ -107,7 +108,6 @@ object Main {
       "-A", "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:" + ver + ") Gecko/20100101 Firefox/" + ver,
       "--socks5", "localhost:" + port,
       url).!
-    assert(res == 0)
   }
 
 }
