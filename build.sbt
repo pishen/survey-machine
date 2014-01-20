@@ -14,4 +14,4 @@ libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.2" % "test"
 
 libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2"
 
-
+libraryDependencies += "org.jsoup" % "jsoup" % "1.7.3"
