@@ -64,8 +64,8 @@ object Main {
           .find(_.endsWith(".pdf")) match {
             case Some(url) => {
               logger.info("downloadPDF: " + url)
-              val res = curl(url, pdfFile.getPath(), port)
-              assert(res == 0 || res == 6 || res == 9)
+              curl(url, pdfFile.getPath(), port)
+              //assert(res == 0 || res == 6 || res == 9)
               true
             }
             case None => false
