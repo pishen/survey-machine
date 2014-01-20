@@ -30,6 +30,7 @@ object Main {
     def downloadScholar(key: String, title: String) = {
       val file = new File("google-scholar/" + key + ".html")
       if (!file.exists() || Resource.fromFile(file).string.contains("302 Moved")) {
+        println("downloadScholar")
         curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
         assert(!Resource.fromFile(file).string.contains("302 Moved"))
         true
@@ -43,6 +44,7 @@ object Main {
       if (!file.exists()) {
         val doid = ee.split("/").last
         val url = "http://dl.acm.org/citation.cfm?doid=" + doid + "&preflayout=flat"
+        println("downloadACM")
         curl(url, file.getPath(), port)
         true
       } else {
@@ -61,6 +63,7 @@ object Main {
           .map(_.attr("href"))
           .find(_.endsWith(".pdf")) match {
             case Some(url) => {
+              println("downloadPDF")
               curl(url, pdfFile.getPath(), port)
               true
             }
