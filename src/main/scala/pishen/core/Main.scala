@@ -16,17 +16,7 @@ object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
-    val scholarDir = new File("google-scholar")
-
-    val count = scholarDir.listFiles().count(scholar => {
-      println(scholar.getName())
-      val divs = Jsoup.parse(scholar, "UTF-8", "http://scholar.google.com.tw/").select("div.gs_r")
-      if (divs.isEmpty())
-        false
-      else
-        divs.first().select("a").iterator().find(_.attr("href").endsWith(".pdf")).nonEmpty
-    })
-    println(count)
+    parseDBLPAndDownload()
   }
 
   def parseDBLPAndDownload() = {
