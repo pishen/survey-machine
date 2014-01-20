@@ -30,7 +30,7 @@ object Main {
     def downloadScholar(key: String, title: String) = {
       val file = new File("google-scholar/" + key + ".html")
       if (!file.exists() || Resource.fromFile(file).string.contains("302 Moved")) {
-        println("downloadScholar")
+        logger.info("downloadScholar")
         curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
         assert(!Resource.fromFile(file).string.contains("302 Moved"))
         true
@@ -44,7 +44,7 @@ object Main {
       if (!file.exists()) {
         val doid = ee.split("/").last
         val url = "http://dl.acm.org/citation.cfm?doid=" + doid + "&preflayout=flat"
-        println("downloadACM: " + url)
+        logger.info("downloadACM: " + url)
         curl(url, file.getPath(), port)
         true
       } else {
@@ -63,7 +63,7 @@ object Main {
           .map(_.attr("href"))
           .find(_.endsWith(".pdf")) match {
             case Some(url) => {
-              println("downloadPDF: " + url)
+              logger.info("downloadPDF: " + url)
               curl(url, pdfFile.getPath(), port)
               true
             }
@@ -81,15 +81,15 @@ object Main {
     }).foreach(p => {
       val key = (p \ "@key").text.replaceAll("/", "-")
       logger.info("paper: " + key)
-      
+
       val title = (p \ "title").text.replaceAll(" ", "+")
       val ee = (p \ "ee").text
 
       val res1 = downloadScholar(key, title)
       val res2 = downloadACM(key, ee)
       val res3 = downloadPDF(key)
-      
-      if(res1 || res2 || res3){
+
+      if (res1 || res2 || res3) {
         port += 1
         if (port > ports.last) port = ports.head
         Thread.sleep(10000)
@@ -98,14 +98,16 @@ object Main {
   }
 
   def curl(url: String, output: String, port: Int) = {
-    val ver = Random.shuffle(20 to 26).head.toString + ".0"
-    Seq(
+    val ver = Random.shuffle(24 to 26).head.toString + ".0"
+    val res = Seq(
       "curl",
       "-L",
+      "-k",
       "-o", output,
       "-A", "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:" + ver + ") Gecko/20100101 Firefox/" + ver,
       "--socks5", "localhost:" + port,
       url).!
+    assert(res == 0)
   }
 
 }
