@@ -44,7 +44,7 @@ object Main {
       if (!file.exists()) {
         val doid = ee.split("/").last
         val url = "http://dl.acm.org/citation.cfm?doid=" + doid + "&preflayout=flat"
-        println("downloadACM")
+        println("downloadACM: " + url)
         curl(url, file.getPath(), port)
         true
       } else {
@@ -63,7 +63,7 @@ object Main {
           .map(_.attr("href"))
           .find(_.endsWith(".pdf")) match {
             case Some(url) => {
-              println("downloadPDF")
+              println("downloadPDF: " + url)
               curl(url, pdfFile.getPath(), port)
               true
             }
