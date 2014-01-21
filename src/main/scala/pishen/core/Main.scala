@@ -58,7 +58,8 @@ object Main {
       val pdfFile = new File("paper-pdf/" + key + ".pdf")
       if (!pdfFile.exists()) {
         val scholarFile = new File("google-scholar/" + key + ".html")
-        Jsoup.parse(scholarFile, "UTF-8", "http://scholar.google.com.tw/")
+        if(!Resource.fromFile(scholarFile).string.contains("沒有任何文章符合您的搜尋")){
+          Jsoup.parse(scholarFile, "UTF-8", "http://scholar.google.com.tw/")
           .select("div.gs_r")
           .first()
           .select("a").iterator()
@@ -72,6 +73,9 @@ object Main {
             }
             case None => false
           }
+        }else{
+          false
+        }
       } else {
         false
       }
