@@ -17,8 +17,9 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //parseDBLPAndDownload()
-    val c = new File("google-scholar").listFiles().count(f => Resource.fromFile(f).string == "")
-    println(c)
+    new File("google-scholar").listFiles()
+      .filter(f => Resource.fromFile(f).string == "")
+      .foreach(f => println(f.getName()))
   }
 
   def parseDBLPAndDownload() = {
