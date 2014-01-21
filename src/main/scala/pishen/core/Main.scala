@@ -16,10 +16,7 @@ object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
-    //parseDBLPAndDownload()
-    new File("google-scholar").listFiles()
-      .filter(f => Resource.fromFile(f).string == "")
-      .foreach(f => println(f.getName()))
+    parseDBLPAndDownload()
   }
 
   def parseDBLPAndDownload() = {
@@ -32,10 +29,12 @@ object Main {
 
     def downloadScholar(key: String, title: String) = {
       val file = new File("google-scholar/" + key + ".html")
-      if (!file.exists() || Resource.fromFile(file).string.contains("302 Moved")) {
+      lazy val content = Resource.fromFile(file).string
+      if (!file.exists() || content.contains("302 Moved") || content == "") {
         logger.info("downloadScholar")
         val res = curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
-        assert(!Resource.fromFile(file).string.contains("302 Moved") && res == 0)
+        val newContent = Resource.fromFile(file).string
+        assert(!newContent.contains("302 Moved") && newContent != "" && res == 0)
         true
       } else {
         false
@@ -67,9 +66,9 @@ object Main {
           .find(_.endsWith(".pdf")) match {
             case Some(url) => {
               logger.info("downloadPDF: " + url)
-              curl(url, pdfFile.getPath(), port)
+              val res = curl(url, pdfFile.getPath(), port)
               //assert(res == 0 || res == 6 || res == 9)
-              true
+              res == 0
             }
             case None => false
           }
