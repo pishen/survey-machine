@@ -16,7 +16,9 @@ object Main {
   private val logger = LoggerFactory.getLogger("Main")
 
   def main(args: Array[String]): Unit = {
-    parseDBLPAndDownload()
+    //parseDBLPAndDownload()
+    val c = new File("google-scholar").listFiles().count(f => Resource.fromFile(f).string == "")
+    println(c)
   }
 
   def parseDBLPAndDownload() = {
