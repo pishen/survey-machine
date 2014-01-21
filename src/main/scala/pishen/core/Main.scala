@@ -106,6 +106,7 @@ object Main {
       "curl",
       "-L",
       "-k",
+      "-g",
       "--connect-timeout", "10",
       "-o", output,
       "-A", "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:" + ver + ") Gecko/20100101 Firefox/" + ver,
