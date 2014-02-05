@@ -1,25 +1,20 @@
-package pishen.core
+package core
 
-import scala.annotation.elidable
-import scala.annotation.elidable.ASSERTION
+import java.io.File
+
+import scala.collection.JavaConversions.asScalaIterator
 import scala.sys.process.stringSeqToProcess
 import scala.sys.process.stringToProcess
 import scala.util.Random
-import org.slf4j.LoggerFactory
-import scalax.io.Resource
-import java.io.File
-import scala.xml.XML
+
 import org.jsoup.Jsoup
-import collection.JavaConversions._
+import org.slf4j.LoggerFactory
 
-object Main {
-  private val logger = LoggerFactory.getLogger("Main")
+import scalax.io.Resource
 
-  def main(args: Array[String]): Unit = {
-    parseDBLPAndDownload()
-  }
-
-  def parseDBLPAndDownload() = {
+object Downloader {
+  private val logger = LoggerFactory.getLogger("Downloader")
+  def download() = {
     "mkdir google-scholar".!
     "mkdir dl-acm".!
     "mkdir paper-pdf".!
@@ -30,7 +25,10 @@ object Main {
     def downloadScholar(key: String, title: String) = {
       val file = new File("google-scholar/" + key + ".html")
       lazy val content = Resource.fromFile(file).string
-      if (!file.exists() || content.contains("302 Moved") || content == "") {
+      if (!file.exists() ||
+        content.contains("302 Moved") ||
+        content.contains("請在上方的搜尋框中輸入查詢字詞") ||
+        content == "") {
         logger.info("downloadScholar")
         val res = curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
         val newContent = Resource.fromFile(file).string
@@ -58,22 +56,22 @@ object Main {
       val pdfFile = new File("paper-pdf/" + key + ".pdf")
       if (!pdfFile.exists()) {
         val scholarFile = new File("google-scholar/" + key + ".html")
-        if(!Resource.fromFile(scholarFile).string.contains("沒有任何文章符合您的搜尋")){
+        if (!Resource.fromFile(scholarFile).string.contains("沒有任何文章符合您的搜尋")) {
           Jsoup.parse(scholarFile, "UTF-8", "http://scholar.google.com.tw/")
-          .select("div.gs_r")
-          .first()
-          .select("a").iterator()
-          .map(_.attr("href"))
-          .find(_.endsWith(".pdf")) match {
-            case Some(url) => {
-              logger.info("downloadPDF: " + url)
-              val res = curl(url, pdfFile.getPath(), port)
-              //assert(res == 0 || res == 6 || res == 9)
-              res == 0
+            .select("div.gs_r")
+            .first()
+            .select("a").iterator()
+            .map(_.attr("href"))
+            .find(_.endsWith(".pdf")) match {
+              case Some(url) => {
+                logger.info("downloadPDF: " + url)
+                val res = curl(url, pdfFile.getPath(), port)
+                //assert(res == 0 || res == 6 || res == 9)
+                res == 0
+              }
+              case None => false
             }
-            case None => false
-          }
-        }else{
+        } else {
           false
         }
       } else {
@@ -89,7 +87,7 @@ object Main {
       val key = (p \ "@key").text.replaceAll("/", "-")
       logger.info("paper: " + key)
 
-      val title = (p \ "title").text.replaceAll(" ", "+")
+      val title = (p \ "title").text.replaceAll(" ", "+").replaceAll("#", "")
       val ee = (p \ "ee").text
 
       val res1 = downloadScholar(key, title)
@@ -102,8 +100,9 @@ object Main {
         Thread.sleep(10000)
       }
     })
-  }
 
+  }
+  
   def curl(url: String, output: String, port: Int) = {
     val ver = Random.shuffle(24 to 26).head.toString + ".0"
     Seq(
@@ -118,5 +117,4 @@ object Main {
       "--socks5", "localhost:" + port,
       url).!
   }
-
 }

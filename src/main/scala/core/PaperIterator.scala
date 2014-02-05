@@ -1,4 +1,4 @@
-package pishen.core
+package core
 
 import scala.io.Source
 import scala.xml.Node
