@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import scalax.io.Resource
 
 object Downloader {
-  private val logger = LoggerFactory.getLogger("Downloader")
+  import Main.logger
   def download() = {
     "mkdir google-scholar".!
     "mkdir dl-acm".!
@@ -79,20 +79,18 @@ object Downloader {
       }
     }
 
-    val papers = new PaperIterator
+    val papers = new DblpIterator
     papers.filter(p => {
-      (p \ "year").text.toInt >= 2010 &&
-        (p \ "ee").text.startsWith("http://doi.acm.org")
+      p.year >= 2010 &&
+        p.ee.startsWith("http://doi.acm.org")
     }).foreach(p => {
-      val key = (p \ "@key").text.replaceAll("/", "-")
-      logger.info("paper: " + key)
+      logger.info("paper: " + p.dblpKey)
 
-      val title = (p \ "title").text.replaceAll(" ", "+").replaceAll("#", "")
-      val ee = (p \ "ee").text
+      val title = p.title.replaceAll(" ", "+").replaceAll("#", "")
 
-      val res1 = downloadScholar(key, title)
-      val res2 = downloadACM(key, ee)
-      val res3 = downloadPDF(key)
+      val res1 = downloadScholar(p.dblpKey, title)
+      val res2 = downloadACM(p.dblpKey, p.ee)
+      val res3 = downloadPDF(p.dblpKey)
 
       if (res1 || res2 || res3) {
         port += 1

@@ -4,7 +4,7 @@ import scala.io.Source
 import scala.xml.Node
 import scala.xml.XML
 
-class PaperIterator extends Iterator[Node] {
+class DblpIterator extends Iterator[DblpPaper] {
   private val dblp = Source.fromFile("dblp.xml").getLines
   private var buffer = parse()
 
@@ -12,10 +12,10 @@ class PaperIterator extends Iterator[Node] {
     buffer != null
   }
 
-  def next: Node = {
+  def next: DblpPaper = {
     val temp = buffer
     buffer = parse()
-    temp
+    new DblpPaper(temp)
   }
 
   private def parse(): Node = {
@@ -37,4 +37,11 @@ class PaperIterator extends Iterator[Node] {
       null
     }
   }
+}
+
+class DblpPaper(p: Node) {
+  val dblpKey = (p \ "@key").text.replaceAll("/", "-")
+  val title = (p \ "title").text
+  val year = (p \ "year").text.toInt
+  val ee = (p \ "ee").text
 }
