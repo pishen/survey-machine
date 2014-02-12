@@ -1,12 +1,6 @@
 package core
 
 import org.slf4j.LoggerFactory
-import scala.xml.XML
-import scala.xml.NodeSeq
-import scalax.io.Resource
-import java.io.FileWriter
-import db.Neo4j
-import sys.process._
 
 object Main {
   val logger = LoggerFactory.getLogger("main")

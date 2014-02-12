@@ -13,13 +13,13 @@ object ContentParser {
   val markRegex = """\[([^\[\]]+)\]""".r
 
   def blockify() = {
-    "mkdir paper-pdf-blockify".!
+    val outputDir = new File("paper-pdf-blockify")
     new DblpIterator().foreach(p => {
       val pdf = new File("paper-pdf/" + p.dblpKey + ".pdf")
       val blockFile = new File("paper-pdf-blockify/" + p.dblpKey + "_spatial.xml")
       if(pdf.exists() && !blockFile.exists()){
         logger.info("blockify: " + p.dblpKey)
-        Seq("./blockify", pdf.getAbsolutePath(), "paper-pdf-blockify").!
+        Seq("./lapdftext/blockify", pdf.getAbsolutePath(), outputDir.getAbsolutePath()).!
       }
     })
   }
