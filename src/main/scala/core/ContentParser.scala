@@ -14,17 +14,12 @@ object ContentParser {
 
   def blockify() = {
     val outputDir = new File("paper-pdf-blockify")
-    new DblpIterator().grouped(5000).foreach(seq => {
+    new DblpIterator().grouped(1000).foreach(seq => {
       seq.par.foreach(p => {
         val pdf = new File("paper-pdf/" + p.dblpKey + ".pdf")
         val blockFile = new File("paper-pdf-blockify/" + p.dblpKey + "_spatial.xml")
         if (pdf.exists() && !blockFile.exists()) {
-          val res = Seq("./lapdftext/blockify", pdf.getAbsolutePath(), outputDir.getAbsolutePath()).!!
-          if(res.contains("Writing spatial block XML")){
-            println("blockify success: " + p.dblpKey)
-          }else{
-            println("blockify failure: " + p.dblpKey)
-          }
+          Seq("./lapdftext/blockify", pdf.getAbsolutePath(), outputDir.getAbsolutePath()).!
         }
       })
     })
