@@ -1,21 +1,42 @@
 package core
 
 import java.io.File
-
 import scala.collection.JavaConversions.asScalaIterator
 import scala.sys.process.stringSeqToProcess
 import scala.sys.process.stringToProcess
 import scala.util.Random
-
 import org.jsoup.Jsoup
 import org.slf4j.LoggerFactory
-
 import scalax.io.Resource
+import scala.xml.XML
 
 object Downloader {
   import Main.logger
+  def downloadCiteSeer() = {
+    "mkdir citeseer".!
+    val base = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&from=2010-01-01&until=2014-12-31&metadataPrefix=oai_dc"
+    def downloadRecords(index: Int, token: String): Unit = {
+      val file = new File("citeseer/" + index + ".xml")
+      if (!file.exists()) {
+        logger.info("download citeseer: " + index)
+        if (token == null) {
+          assert(curl(base, file.getPath(), 10001) == 0)
+        } else {
+          val resume = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&resumptionToken=" + token
+          assert(curl(resume, file.getPath(), 10001) == 0)
+        }
+      }
+      val xml = XML.loadFile(file)
+      (xml \\ "resumptionToken").headOption match {
+        case None    => Unit
+        case Some(n) => downloadRecords(index + 1, n.text)
+      }
+    }
+    downloadRecords(0, null)
+  }
+
   def download() = {
-    "mkdir google-scholar".!
+    //"mkdir google-scholar".!
     "mkdir dl-acm".!
     "mkdir paper-pdf".!
 
@@ -98,9 +119,8 @@ object Downloader {
         Thread.sleep(10000)
       }
     })
-
   }
-  
+
   def curl(url: String, output: String, port: Int) = {
     val ver = Random.shuffle(24 to 26).head.toString + ".0"
     Seq(
@@ -109,10 +129,20 @@ object Downloader {
       "-k",
       "-g",
       "--connect-timeout", "10",
-      "-m", "180",
+      "-m", "300",
       "-o", output,
       "-A", "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:" + ver + ") Gecko/20100101 Firefox/" + ver,
       "--socks5", "localhost:" + port,
       url).!
+  }
+
+  def checkTitleEditDistance() = {
+    new DblpIterator().foreach(p => {
+      val scholar = new File("google-scholar/" + p.dblpKey + ".html")
+      if (scholar.exists()) {
+        Jsoup.parse(scholar, "UTF-8", "http://scholar.google.com.tw/")
+
+      }
+    })
   }
 }

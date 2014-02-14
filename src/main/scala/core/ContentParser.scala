@@ -14,7 +14,7 @@ object ContentParser {
 
   def blockify() = {
     val outputDir = new File("paper-pdf-blockify")
-    new DblpIterator().grouped(1000).foreach(seq => {
+    new DblpIterator().grouped(5000).foreach(seq => {
       seq.par.foreach(p => {
         val pdf = new File("paper-pdf/" + p.dblpKey + ".pdf")
         val blockFile = new File("paper-pdf-blockify/" + p.dblpKey + "_spatial.xml")

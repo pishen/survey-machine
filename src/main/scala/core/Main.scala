@@ -7,7 +7,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     if(args.contains("download")){
-      Downloader.download()
+      Downloader.downloadCiteSeer()
     }
     if(args.contains("blockify")){
       ContentParser.blockify()
@@ -16,5 +16,4 @@ object Main {
       //DbInitializer.setupIndexes
     }
   }
-
 }
