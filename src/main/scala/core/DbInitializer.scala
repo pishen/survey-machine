@@ -21,7 +21,8 @@ object DbInitializer {
       if(nodeOpt.nonEmpty){
         val node = nodeOpt.get
         val ty = Neo4jOld.getNodeProp(node, "CITATION_TYPE")
-        if(ty == "NUMBER"){
+        val text = new File("text-records/" + p.dblpKey)
+        if(ty == "NUMBER" && text.exists()){
           Paper.createPaper(p.dblpKey, p.title, p.year.toString, p.ee)
         }
       }
