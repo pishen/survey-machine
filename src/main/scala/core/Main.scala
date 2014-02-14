@@ -7,6 +7,6 @@ object Main {
   val logger = LoggerFactory.getLogger("main")
 
   def main(args: Array[String]): Unit = {
-    DbInitializer.createPapersOld()
+    DbInitializer.connectPapersOld()
   }
 }
