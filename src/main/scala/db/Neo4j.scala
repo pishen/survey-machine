@@ -13,7 +13,7 @@ import org.neo4j.graphdb.RelationshipType
 import org.neo4j.graphdb.Direction
 
 object Neo4j {
-  val graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("graph-db-old")
+  val graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("graph-db-text")
 
   sys.ShutdownHookThread {
     logger.info("shutdown graphDb")
