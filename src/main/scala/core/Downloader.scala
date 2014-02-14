@@ -18,12 +18,13 @@ object Downloader {
     def downloadRecords(index: Int, token: String): Unit = {
       val file = new File("citeseer/" + index + ".xml")
       if (!file.exists()) {
-        logger.info("download citeseer: " + index)
         if (token == null) {
-          assert(curl(base, file.getPath(), 10001) == 0)
+          logger.info("curl: " + base)
+          assert(curl(base, file.getPath()) == 0)
         } else {
           val resume = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&resumptionToken=" + token
-          assert(curl(resume, file.getPath(), 10001) == 0)
+          logger.info("curl: " + resume)
+          assert(curl(resume, file.getPath()) == 0)
         }
       }
       val xml = XML.loadFile(file)
@@ -119,6 +120,15 @@ object Downloader {
         Thread.sleep(10000)
       }
     })
+  }
+  
+  def curl(url: String, output: String) = {
+    Seq(
+      "curl",
+      "-k",
+      "-o", output,
+      "-A", "Mozilla/5.0",
+      url).!
   }
 
   def curl(url: String, output: String, port: Int) = {
