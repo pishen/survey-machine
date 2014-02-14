@@ -12,13 +12,19 @@ import scala.xml.XML
 
 object Downloader {
   import Main.logger
+
   def downloadCiteSeer() = {
-    "mkdir citeseer".!
-    val base = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&from=2010-01-01&until=2014-12-31&metadataPrefix=oai_dc"
-    def downloadRecords(index: Int, token: String): Unit = {
-      val file = new File("citeseer/" + index + ".xml")
+    "mkdir citeseer-raw".!
+
+    def downloadRecords(year: Int, index: Int, token: String): Unit = {
+      val file = new File("citeseer-raw/" + year + "/" + index + ".xml")
       if (!file.exists()) {
         if (token == null) {
+          val base = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&from=" +
+            year +
+            "-01-01&until=" +
+            year +
+            "-12-31&metadataPrefix=oai_dc"
           logger.info("curl: " + base)
           assert(curl(base, file.getPath()) == 0)
         } else {
@@ -30,36 +36,35 @@ object Downloader {
       val xml = XML.loadFile(file)
       (xml \\ "resumptionToken").headOption match {
         case None    => Unit
-        case Some(n) => downloadRecords(index + 1, n.text)
+        case Some(n) => downloadRecords(year, index + 1, n.text)
       }
     }
-    downloadRecords(0, null)
+    (2010 to 2013).foreach(year => {
+      Seq("mkdir", "-p", "citeseer-raw/" + year).!
+      downloadRecords(year, 0, null)
+    })
+  }
+
+  def extractCiteSeer() = {
+    /*def findRecord() = {
+      new File("citeseer").listFiles().find(f => {
+        val xml = XML.loadFile(f)
+        xml \\ "record"
+      })
+    }*/
+
+    new DblpIterator().foreach(p => {
+      val cleanedTitle = p.title.toLowerCase()
+
+    })
   }
 
   def download() = {
-    //"mkdir google-scholar".!
     "mkdir dl-acm".!
     "mkdir paper-pdf".!
 
     val ports = 10001 to 10010
     var port = ports.head
-
-    def downloadScholar(key: String, title: String) = {
-      val file = new File("google-scholar/" + key + ".html")
-      lazy val content = Resource.fromFile(file).string
-      if (!file.exists() ||
-        content.contains("302 Moved") ||
-        content.contains("請在上方的搜尋框中輸入查詢字詞") ||
-        content == "") {
-        logger.info("downloadScholar")
-        val res = curl("http://scholar.google.com.tw/scholar?q=" + title, file.getPath(), port)
-        val newContent = Resource.fromFile(file).string
-        assert(!newContent.contains("302 Moved") && newContent != "" && res == 0)
-        true
-      } else {
-        false
-      }
-    }
 
     def downloadACM(key: String, ee: String) = {
       val file = new File("dl-acm/" + key + ".html")
@@ -74,28 +79,10 @@ object Downloader {
       }
     }
 
-    def downloadPDF(key: String) = {
-      val pdfFile = new File("paper-pdf/" + key + ".pdf")
+    def downloadPDF(p: DblpPaper) = {
+      val pdfFile = new File("paper-pdf/" + p.dblpKey + ".pdf")
       if (!pdfFile.exists()) {
-        val scholarFile = new File("google-scholar/" + key + ".html")
-        if (!Resource.fromFile(scholarFile).string.contains("沒有任何文章符合您的搜尋")) {
-          Jsoup.parse(scholarFile, "UTF-8", "http://scholar.google.com.tw/")
-            .select("div.gs_r")
-            .first()
-            .select("a").iterator()
-            .map(_.attr("href"))
-            .find(_.endsWith(".pdf")) match {
-              case Some(url) => {
-                logger.info("downloadPDF: " + url)
-                val res = curl(url, pdfFile.getPath(), port)
-                //assert(res == 0 || res == 6 || res == 9)
-                res == 0
-              }
-              case None => false
-            }
-        } else {
-          false
-        }
+        false
       } else {
         false
       }
@@ -110,18 +97,17 @@ object Downloader {
 
       val title = p.title.replaceAll(" ", "+").replaceAll("#", "")
 
-      val res1 = downloadScholar(p.dblpKey, title)
-      val res2 = downloadACM(p.dblpKey, p.ee)
-      val res3 = downloadPDF(p.dblpKey)
+      val res1 = downloadACM(p.dblpKey, p.ee)
+      val res2 = downloadPDF(p)
 
-      if (res1 || res2 || res3) {
+      if (res1 || res2) {
         port += 1
         if (port > ports.last) port = ports.head
-        Thread.sleep(10000)
+        Thread.sleep(7000)
       }
     })
   }
-  
+
   def curl(url: String, output: String) = {
     Seq(
       "curl",
@@ -146,13 +132,4 @@ object Downloader {
       url).!
   }
 
-  def checkTitleEditDistance() = {
-    new DblpIterator().foreach(p => {
-      val scholar = new File("google-scholar/" + p.dblpKey + ".html")
-      if (scholar.exists()) {
-        Jsoup.parse(scholar, "UTF-8", "http://scholar.google.com.tw/")
-
-      }
-    })
-  }
 }
