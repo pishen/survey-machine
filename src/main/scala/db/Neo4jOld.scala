@@ -26,7 +26,9 @@ object Neo4jOld {
 
   //Nodes
 
-  val recordIndex = graphDb.index().forNodes("RECORD_INDEX")
+  val recordIndex = withTx {
+    graphDb.index().forNodes("RECORD_INDEX")
+  }
 
   def getRecord(name: String) = withTx {
     val node = recordIndex.get("NAME", name).getSingle()
