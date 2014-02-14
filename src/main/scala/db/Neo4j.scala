@@ -90,7 +90,7 @@ object Neo4j {
     }
   }
 
-  def waitForIndexes(seconds: Long) = {
+  def waitForIndexes(seconds: Long) = withTx {
     graphDb.schema().awaitIndexesOnline(seconds, TimeUnit.SECONDS)
   }
   
