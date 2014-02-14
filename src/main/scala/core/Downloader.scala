@@ -9,6 +9,9 @@ import org.jsoup.Jsoup
 import org.slf4j.LoggerFactory
 import scalax.io.Resource
 import scala.xml.XML
+import java.io.FileWriter
+import com.rockymadden.stringmetric.similarity.LevenshteinMetric
+import scala.xml.Elem
 
 object Downloader {
   import Main.logger
@@ -28,6 +31,7 @@ object Downloader {
           assert(curl(resume, file.getPath()) == 0)
         }
       }
+      logger.info("check " + file.getName())
       val xml = XML.loadFile(file)
       (xml \\ "resumptionToken").headOption match {
         case None    => Unit
@@ -37,18 +41,23 @@ object Downloader {
     downloadRecords(0, null)
   }
 
-  def extractCiteSeer() = {
-    /*def findRecord() = {
-      new File("citeseer").listFiles().find(f => {
-        val xml = XML.loadFile(f)
-        xml \\ "record"
+  def citeSeerByYear() = {
+    val records = new File("citeseer-raw").listFiles().flatMap(f => {
+      (XML.loadFile(f) \\ "record").filter(n => {
+        val dateStr = (n \\ "date").lastOption
+        if (dateStr.nonEmpty) {
+          dateStr.get.text.substring(0, 4).toInt == 2010
+        } else {
+          false
+        }
       })
-    }*/
-
-    new DblpIterator().foreach(p => {
-      val cleanedTitle = p.title.toLowerCase()
-
     })
+    Resource.fromWriter(new FileWriter("citeseer-year/2010.xml"))
+      .write(<root>{ records }</root>.toString)
+  }
+
+  def findPdfUrl(year: Int, title: String) = {
+
   }
 
   def download() = {
@@ -71,10 +80,26 @@ object Downloader {
       }
     }
 
-    def downloadPDF(p: DblpPaper) = {
+    def downloadPDF(p: DblpPaper, xml: Elem): Boolean = {
       val pdfFile = new File("paper-pdf/" + p.dblpKey + ".pdf")
+      val dblpTitle = p.title.toLowerCase()
       if (!pdfFile.exists()) {
-        false
+        (xml \\ "record").find(n => {
+          val citeSeerTitle = (n \\ "title").head.text.toLowerCase()
+          LevenshteinMetric.compare(dblpTitle, citeSeerTitle) match {
+            case None    => false
+            case Some(i) => i < 6
+          }
+        }) match {
+          case None => false
+          case Some(n) => (n \\ "source").headOption match {
+            case None => false
+            case Some(s) => {
+              val url = s.text
+              curl(url, pdfFile.getPath()) == 0
+            }
+          }
+        }
       } else {
         false
       }
@@ -82,20 +107,18 @@ object Downloader {
 
     val papers = new DblpIterator
     papers.filter(p => {
-      p.year >= 2010 &&
-        p.ee.startsWith("http://doi.acm.org")
+      p.year == 2010 && p.ee.startsWith("http://doi.acm.org")
     }).foreach(p => {
       logger.info("paper: " + p.dblpKey)
 
-      val title = p.title.replaceAll(" ", "+").replaceAll("#", "")
-
       val res1 = downloadACM(p.dblpKey, p.ee)
-      val res2 = downloadPDF(p)
+      val xml = XML.loadFile("citeseer-year/" + p.year + ".xml")
+      downloadPDF(p, xml)
 
-      if (res1 || res2) {
+      if (res1) {
         port += 1
         if (port > ports.last) port = ports.head
-        Thread.sleep(7000)
+        Thread.sleep(10000)
       }
     })
   }

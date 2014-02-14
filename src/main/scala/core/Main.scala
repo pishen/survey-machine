@@ -9,6 +9,9 @@ object Main {
     if(args.contains("download")){
       Downloader.downloadCiteSeer()
     }
+    if(args.contains("byYear")){
+      Downloader.citeSeerByYear()
+    }
     if(args.contains("blockify")){
       ContentParser.blockify()
     }
