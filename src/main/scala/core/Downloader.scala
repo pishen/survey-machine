@@ -15,16 +15,11 @@ object Downloader {
 
   def downloadCiteSeer() = {
     "mkdir citeseer-raw".!
-
-    def downloadRecords(year: Int, index: Int, token: String): Unit = {
-      val file = new File("citeseer-raw/" + year + "/" + index + ".xml")
+    def downloadRecords(index: Int, token: String): Unit = {
+      val file = new File("citeseer-raw/" + index + ".xml")
       if (!file.exists()) {
         if (token == null) {
-          val base = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&from=" +
-            year +
-            "-01-01&until=" +
-            year +
-            "-12-31&metadataPrefix=oai_dc"
+          val base = "http://citeseerx.ist.psu.edu/oai2?verb=ListRecords&metadataPrefix=oai_dc"
           logger.info("curl: " + base)
           assert(curl(base, file.getPath()) == 0)
         } else {
@@ -36,13 +31,10 @@ object Downloader {
       val xml = XML.loadFile(file)
       (xml \\ "resumptionToken").headOption match {
         case None    => Unit
-        case Some(n) => downloadRecords(year, index + 1, n.text)
+        case Some(n) => downloadRecords(index + 1, n.text)
       }
     }
-    (2010 to 2013).foreach(year => {
-      Seq("mkdir", "-p", "citeseer-raw/" + year).!
-      downloadRecords(year, 0, null)
-    })
+    downloadRecords(0, null)
   }
 
   def extractCiteSeer() = {
