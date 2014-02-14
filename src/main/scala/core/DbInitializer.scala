@@ -5,6 +5,7 @@ import db.Neo4j
 import db.Labels
 import Main.logger
 import db.Paper
+import db.Neo4jOld
 
 object DbInitializer {
   def setupIndexes() = {
@@ -12,6 +13,23 @@ object DbInitializer {
     Neo4j.createIndexIfNotExist(Labels.Paper, "ee")
     logger.info("wait for indexes")
     Neo4j.waitForIndexes(100)
+  }
+  
+  def createPapersOld() = {
+    new DblpIterator().foreach(p => {
+      val nodeOpt = Neo4jOld.getRecord(p.dblpKey)
+      if(nodeOpt.nonEmpty){
+        val node = nodeOpt.get
+        val ty = Neo4jOld.getNodeProp(node, "CITATION_TYPE")
+        if(ty == "NUMBER"){
+          Paper.createPaper(p.dblpKey, p.title, p.year.toString, p.ee)
+        }
+      }
+    })
+  }
+  
+  def connectPapersOld() = {
+    
   }
 
   def createPapers() = {

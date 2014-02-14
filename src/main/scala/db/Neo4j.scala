@@ -13,7 +13,7 @@ import org.neo4j.graphdb.RelationshipType
 import org.neo4j.graphdb.Direction
 
 object Neo4j {
-  val graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("graph-db")
+  val graphDb = new GraphDatabaseFactory().newEmbeddedDatabase("graph-db-old")
 
   sys.ShutdownHookThread {
     logger.info("shutdown graphDb")
@@ -31,11 +31,6 @@ object Neo4j {
   def getNodes(label: Label, key: String, value: String) = withTx {
     graphDb.findNodesByLabelAndProperty(label, key, value).map(_.getId()).toSeq
   }
-
-  //top-level transaction too large, need to split it into several small transactions
-  /*def forNodes[R](label: Label)(operation: Node => R) = withTx {
-    GlobalGraphOperations.at(graphDb).getAllNodesWithLabel(label).iterator().map(operation)
-  }*/
 
   def getNodeProp(nodeId: Long, key: String) = withTx {
     graphDb.getNodeById(nodeId).getProperty(key).asInstanceOf[String]
