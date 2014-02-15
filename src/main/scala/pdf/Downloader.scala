@@ -85,8 +85,11 @@ object Downloader {
     searcher.search(query, 1).scoreDocs
       .map(s => searcher.doc(s.doc))
       .headOption match {
-        case None    => logger.info("none")
-        case Some(d) => logger.info("found: " + d.get("title"))
+        case None => logger.info("none")
+        case Some(d) => {
+          logger.info("found: " + d.get("title"))
+          logger.info("source: " + d.get("source"))
+        }
       }
   }
 
