@@ -28,7 +28,6 @@ object CiteSeer {
 
   val regex = """[^a-zA-Z\-0-9 ]"""
 
-  "mkdir paper-pdf".!
   "mkdir citeseer-raw".!
   "mkdir citeseer-pdf".!
 
@@ -64,7 +63,7 @@ object CiteSeer {
         (XML.loadFile(f) \\ "dc").foreach(d => {
           val tags = Seq(d \ "title", d \ "source")
           if (tags.forall(_.nonEmpty)) {
-            val title = (d \ "title").head.text.replaceAll(regex, "")
+            val title = (d \ "title").head.text.replaceAll(regex, "").toLowerCase()
             val source = (d \ "source").head.text
             if (source.endsWith(".pdf")) {
               val doc = new Document()
@@ -79,7 +78,7 @@ object CiteSeer {
   }
 
   def downloadPdf(dblpKey: String, title: String) = {
-    val cleanTitle = title.replaceAll(regex, "")
+    val cleanTitle = title.replaceAll(regex, "").toLowerCase()
     val reader = DirectoryReader.open(dir)
     val searcher = new IndexSearcher(reader)
     val parser = new QueryParser(Version.LUCENE_46, "title", analyzer)
@@ -90,11 +89,11 @@ object CiteSeer {
         case None => false
         case Some(doc) => {
           val citeSeerTitle = doc.get("title")
-          if (citeSeerTitle.toLowerCase() == cleanTitle.toLowerCase()) {
+          if (citeSeerTitle == cleanTitle) {
             //download source
             val source = doc.get("source")
-            val res = Downloader.curl(source, "citeseer-pdf/" + dblpKey + ".pdf")
-            res == 0
+            logger.info("download pdf: " + source)
+            Downloader.curl(source, "citeseer-pdf/" + dblpKey + ".pdf") == 0
           }else{
             false
           }

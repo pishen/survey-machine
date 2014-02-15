@@ -20,7 +20,7 @@ object Acm {
     if (!file.exists()) {
       val doid = ee.split("/").last
       val url = "http://dl.acm.org/citation.cfm?doid=" + doid + "&preflayout=flat"
-      logger.info("downloadACM: " + url)
+      logger.info("download acm: " + url)
       assert(Downloader.curl(url, file.getPath()) == 0)
       true
     } else {
