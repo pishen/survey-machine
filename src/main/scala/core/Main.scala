@@ -10,10 +10,13 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     val oneYear = new File("citeseer-raw").listFiles().map(f => {
+      logger.info("check " + f.getName())
       (XML.loadFile(f) \\ "record").count(n => {
         (n \\ "date").lastOption match {
           case None => false
-          case Some(d) => d.text.substring(0, 4).toInt == 2010
+          case Some(d) => {
+            d.text.length() >= 4 && d.text.substring(0, 4) == "2010"
+          }
         }
       })
     }).sum
