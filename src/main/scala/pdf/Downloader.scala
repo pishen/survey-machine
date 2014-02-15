@@ -66,7 +66,7 @@ object Downloader {
             val source = (d \ "source").head.text
             if (source.endsWith(".pdf")) {
               val doc = new Document()
-              doc.addIndexedStoredField("title", title)
+              doc.addIndexedStoredField("title", title.toLuceneText)
               doc.addStoredOnlyField("source", source)
               index.addDocument(doc)
             }
