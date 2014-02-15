@@ -20,12 +20,7 @@ import org.apache.lucene.document.Field.Store
 import org.apache.lucene.document.StringField
 import org.apache.lucene.index.DirectoryReader
 import org.apache.lucene.search.IndexSearcher
-import com.gilt.lucene.LuceneStandardAnalyzer
-import com.gilt.lucene.WritableLuceneIndex
-import com.gilt.lucene.ReadableLuceneIndex
-import com.gilt.lucene.DefaultFSLuceneDirectory
-import com.gilt.lucene.LuceneFieldHelpers._
-import com.gilt.lucene.LuceneText._
+import org.apache.lucene.queryparser.classic.QueryParser
 
 object Downloader {
   def downloadCiteSeer() = {
@@ -54,7 +49,10 @@ object Downloader {
   }
 
   def indexCiteSeer(size: Int) = {
-    val index = new ReadableLuceneIndex with WritableLuceneIndex with LuceneStandardAnalyzer with DefaultFSLuceneDirectory
+    val analyzer = new StandardAnalyzer(Version.LUCENE_46)
+    val config = new IndexWriterConfig(Version.LUCENE_46, analyzer)
+    val dir = FSDirectory.open(new File("citeseer-index"))
+    val writer = new IndexWriter(dir, config)
 
     (0 until size).map(i => new File("citeseer-raw/" + i + ".xml"))
       .foreach(f => {
@@ -66,23 +64,30 @@ object Downloader {
             val source = (d \ "source").head.text
             if (source.endsWith(".pdf")) {
               val doc = new Document()
-              doc.addIndexedStoredField("title", title.toLuceneText)
-              doc.addStoredOnlyField("source", source)
-              index.addDocument(doc)
+              doc.add(new TextField("title", title, Store.YES))
+              doc.add(new StringField("source", source, Store.YES))
+              writer.addDocument(doc)
             }
           }
         })
       })
+    writer.close()
+    dir.close()
   }
 
   def findFromCiteSeer(title: String) = {
-    val index = new ReadableLuceneIndex with LuceneStandardAnalyzer with DefaultFSLuceneDirectory
-    val parser = index.queryParserForDefaultField("title")
+    val analyzer = new StandardAnalyzer(Version.LUCENE_46)
+    val dir = FSDirectory.open(new File("citeseer-index"))
+    val reader = DirectoryReader.open(dir)
+    val searcher = new IndexSearcher(reader)
+    val parser = new QueryParser(Version.LUCENE_46, "title", analyzer)
     val query = parser.parse(title)
-    index.searchTopDocuments(query, 1).foreach(doc => {
-      logger.info("found: " + doc.get("title"))
-      logger.info("source: " + doc.get("source"))
-    })
+    searcher.search(query, 1).scoreDocs
+      .map(s => searcher.doc(s.doc))
+      .headOption match {
+        case None    => logger.info("none")
+        case Some(d) => logger.info("found: " + d.get("title"))
+      }
   }
 
   def download() = {
