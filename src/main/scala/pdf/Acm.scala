@@ -2,14 +2,32 @@ package pdf
 
 import java.io.File
 
+import scala.annotation.elidable
+import scala.annotation.elidable.ASSERTION
 import scala.collection.JavaConversions.asScalaIterator
+import scala.sys.process.stringToProcess
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 import main.Main.logger
 
-object AcmParser {
+object Acm {
+  "mkdir dl-acm".!
+  
+  def download(dblpKey: String, ee: String) = {
+    val file = new File("dl-acm/" + dblpKey + ".html")
+    if (!file.exists()) {
+      val doid = ee.split("/").last
+      val url = "http://dl.acm.org/citation.cfm?doid=" + doid + "&preflayout=flat"
+      logger.info("downloadACM: " + url)
+      assert(Downloader.curl(url, file.getPath()) == 0)
+      true
+    } else {
+      false
+    }
+  }
+
   def getRefSize(dblpKey: String) = {
     val acm = new File("dl-acm/" + dblpKey + ".html")
     Jsoup.parse(acm, "UTF-8", "http://dl.acm.org/")

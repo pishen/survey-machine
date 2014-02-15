@@ -28,7 +28,7 @@ object ContentParser {
   }
 
   def isNumericIndex(dblpKey: String) = {
-    val refSize = AcmParser.getRefSize(dblpKey)
+    val refSize = Acm.getRefSize(dblpKey)
     val xml = XML.loadFile("paper-pdf-blockify/" + dblpKey + "_spatial.xml")
     val str = (xml \\ "Word").mkString
     val numsInStr = markRegex.findAllMatchIn(str).flatMap(m => {

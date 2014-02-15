@@ -25,7 +25,7 @@ object DbInitializer {
   def connectPapers() = {
     Paper.allPapers.foreach(p => {
       logger.info("create Refs: " + p.dblpKey)
-      AcmParser.getLinks(p.dblpKey).foreach {
+      Acm.getLinks(p.dblpKey).foreach {
         case (index, ee) =>
           Paper.getPaperByEe(ee) match {
             case None              => //do nothing

@@ -2,7 +2,6 @@ package pdf
 
 object Tester {
   def test() = {
-    //Downloader.indexCiteSeer(100)
-    Downloader.findFromCiteSeer("mathematics of computation")
+    CiteSeer.createIndex(0 to 5100)
   }
 }
