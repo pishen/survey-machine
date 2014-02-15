@@ -1,4 +1,4 @@
-package db
+package text
 
 case class Ref(id: Long) {
   lazy val index = Neo4j.getRelProp(id, "index")

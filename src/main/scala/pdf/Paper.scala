@@ -1,8 +1,10 @@
-package db
+package pdf
 
-import core.DblpIterator
+import scala.Option.option2Iterable
+
 import org.neo4j.graphdb.Direction
-import core.Main.logger
+
+import main.Main.logger
 
 case class Paper(id: Long) {
   lazy val dblpKey = Neo4j.getNodeProp(id, "dblpKey")

@@ -1,4 +1,4 @@
-package core
+package text
 
 import scala.io.Source
 import scala.xml.Node

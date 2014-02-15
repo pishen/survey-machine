@@ -1,17 +1,13 @@
-package db
+package text
 
-import org.neo4j.graphdb.factory.GraphDatabaseFactory
-import org.neo4j.graphdb.Label
-import collection.JavaConversions._
-import org.neo4j.graphdb.DynamicLabel
-import org.neo4j.graphdb.DynamicRelationshipType
-import core.Main.logger
-import java.util.concurrent.TimeUnit
-import org.neo4j.tooling.GlobalGraphOperations
-import org.neo4j.graphdb.Node
-import org.neo4j.graphdb.RelationshipType
+import scala.collection.JavaConversions.iterableAsScalaIterable
+
 import org.neo4j.graphdb.Direction
+import org.neo4j.graphdb.RelationshipType
+import org.neo4j.graphdb.factory.GraphDatabaseFactory
 import org.neo4j.graphdb.factory.GraphDatabaseSettings
+
+import main.Main.logger
 
 object Neo4jOld {
   val graphDb = new GraphDatabaseFactory()

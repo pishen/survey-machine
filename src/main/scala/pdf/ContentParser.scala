@@ -1,14 +1,16 @@
-package core
+package pdf
 
 import java.io.File
-import scala.sys.process._
-import scala.xml.XML
-import scala.xml.NodeSeq
-import scalax.io.Resource
 import java.io.FileWriter
 
+import scala.Array.canBuildFrom
+import scala.sys.process.stringSeqToProcess
+import scala.xml.NodeSeq
+import scala.xml.XML
+
+import scalax.io.Resource
+
 object ContentParser {
-  import Main.logger
   val numberRegex = """[1-9]\d{0,2}(-[1-9]\d{0,2})?(,[1-9]\d{0,2}(-[1-9]\d{0,2})?)?""".r
   val markRegex = """\[([^\[\]]+)\]""".r
 

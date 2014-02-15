@@ -1,21 +1,25 @@
-package core
+package pdf
 
 import java.io.File
-import scala.collection.JavaConversions.asScalaIterator
 import scala.sys.process.stringSeqToProcess
 import scala.sys.process.stringToProcess
 import scala.util.Random
-import org.jsoup.Jsoup
-import org.slf4j.LoggerFactory
-import scalax.io.Resource
-import scala.xml.XML
-import java.io.FileWriter
-import com.rockymadden.stringmetric.similarity.LevenshteinMetric
 import scala.xml.Elem
+import scala.xml.XML
+import com.rockymadden.stringmetric.similarity.LevenshteinMetric
+import main.Main.logger
+import org.apache.lucene.analysis.standard.StandardAnalyzer
+import org.apache.lucene.util.Version
+import org.apache.lucene.store.FSDirectory
+import org.apache.lucene.index.IndexWriterConfig
+import org.apache.lucene.index.IndexWriter
+import org.apache.lucene.document.Document
+import org.apache.lucene.document.TextField
+import org.apache.lucene.document.Field
+import org.apache.lucene.document.Field.Store
+import org.apache.lucene.document.StringField
 
 object Downloader {
-  import Main.logger
-
   def downloadCiteSeer() = {
     "mkdir citeseer-raw".!
     def downloadRecords(index: Int, token: String): Unit = {
@@ -41,19 +45,31 @@ object Downloader {
     downloadRecords(0, null)
   }
 
-  def citeSeerByYear() = {
-    val records = new File("citeseer-raw").listFiles().flatMap(f => {
-      (XML.loadFile(f) \\ "record").filter(n => {
-        val dateStr = (n \\ "date").lastOption
-        if (dateStr.nonEmpty) {
-          dateStr.get.text.substring(0, 4).toInt == 2010
-        } else {
-          false
-        }
+  def indexCiteSeer(size: Int) = {
+    val analyzer = new StandardAnalyzer(Version.LUCENE_46)
+    val config = new IndexWriterConfig(Version.LUCENE_46, analyzer)
+    val dir = FSDirectory.open(new File("citeseer-index"))
+    val writer = new IndexWriter(dir, config)
+
+    (0 until size).map(i => new File("citeseer-raw/" + i + ".xml"))
+      .foreach(f => {
+        (XML.loadFile(f) \\ "dc").foreach(d => {
+          val tags = Seq(d \ "title", d \ "source")
+          if (tags.forall(_.nonEmpty)) {
+            val title = (d \ "title").head.text
+            val source = (d \ "source").head.text
+            if (source.endsWith(".pdf")) {
+              val doc = new Document()
+              doc.add(new TextField("title", title, Store.YES))
+              doc.add(new StringField("source", source, Store.YES))
+              writer.addDocument(doc)
+            }
+          }
+        })
       })
-    })
-    Resource.fromWriter(new FileWriter("citeseer-year/2010.xml"))
-      .write(<root>{ records }</root>.toString)
+
+    writer.close()
+    dir.close()
   }
 
   def download() = {

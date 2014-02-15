@@ -1,13 +1,11 @@
-package core
+package text
 
 import java.io.File
-import db.Neo4j
-import db.Labels
-import Main.logger
-import db.Paper
-import db.Neo4jOld
-import pishen.db.Record
+
 import org.neo4j.graphdb.Direction
+
+import main.Main.logger
+import pishen.db.Record
 
 object DbInitializer {
   def setupIndexes() = {
@@ -17,7 +15,7 @@ object DbInitializer {
     Neo4j.waitForIndexes(100)
   }
 
-  def createPapersOld() = {
+  def createPapers() = {
     new DblpIterator().foreach(p => {
       val nodeOpt = Neo4jOld.getRecord(p.dblpKey)
       if (nodeOpt.nonEmpty) {
@@ -31,7 +29,7 @@ object DbInitializer {
     })
   }
 
-  def connectPapersOld() = {
+  def connectPapers() = {
     Paper.allPapers.foreach(p => {
       val nodeOpt = Neo4jOld.getRecord(p.dblpKey)
       if (nodeOpt.nonEmpty) {
@@ -56,26 +54,4 @@ object DbInitializer {
     })
   }
 
-  def createPapers() = {
-    new DblpIterator().foreach(p => {
-      val blocksFile = new File("paper-pdf-blockify/" + p.dblpKey + "_spatial.xml")
-      if (blocksFile.exists() &&
-        ContentParser.isNumericIndex(p.dblpKey)) {
-        Paper.createPaper(p.dblpKey, p.title, p.year.toString, p.ee)
-      }
-    })
-  }
-
-  def connectPapers() = {
-    Paper.allPapers.foreach(p => {
-      logger.info("create Refs: " + p.dblpKey)
-      AcmParser.getLinks(p.dblpKey).foreach {
-        case (index, ee) =>
-          Paper.getPaperByEe(ee) match {
-            case None              => //do nothing
-            case Some(targetPaper) => p.createRefTo(targetPaper, index)
-          }
-      }
-    })
-  }
 }

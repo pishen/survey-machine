@@ -1,13 +1,15 @@
-package core
+package pdf
 
 import java.io.File
+
+import scala.collection.JavaConversions.asScalaIterator
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import collection.JavaConversions._
+
+import main.Main.logger
 
 object AcmParser {
-  import Main.logger
-
   def getRefSize(dblpKey: String) = {
     val acm = new File("dl-acm/" + dblpKey + ".html")
     Jsoup.parse(acm, "UTF-8", "http://dl.acm.org/")
