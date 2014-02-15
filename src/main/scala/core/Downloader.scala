@@ -56,10 +56,6 @@ object Downloader {
       .write(<root>{ records }</root>.toString)
   }
 
-  def findPdfUrl(year: Int, title: String) = {
-
-  }
-
   def download() = {
     "mkdir dl-acm".!
     "mkdir paper-pdf".!
