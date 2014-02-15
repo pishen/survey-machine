@@ -10,7 +10,5 @@ libraryDependencies ++= Seq(
   "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2",
   "org.jsoup" % "jsoup" % "1.7.3",
   "com.rockymadden.stringmetric" %% "stringmetric-core" % "0.27.2",
-  "org.apache.lucene" % "lucene-core" % "4.6.1",
-  "org.apache.lucene" % "lucene-analyzers-common" % "4.6.1",
-  "org.apache.lucene" % "lucene-queryparser" % "4.6.1"
+  "com.gilt" %% "lib-lucene-sugar" % "0.2.0"
 )

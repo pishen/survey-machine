@@ -18,6 +18,14 @@ import org.apache.lucene.document.TextField
 import org.apache.lucene.document.Field
 import org.apache.lucene.document.Field.Store
 import org.apache.lucene.document.StringField
+import org.apache.lucene.index.DirectoryReader
+import org.apache.lucene.search.IndexSearcher
+import com.gilt.lucene.LuceneStandardAnalyzer
+import com.gilt.lucene.WritableLuceneIndex
+import com.gilt.lucene.ReadableLuceneIndex
+import com.gilt.lucene.DefaultFSLuceneDirectory
+import com.gilt.lucene.LuceneFieldHelpers._
+import com.gilt.lucene.LuceneText._
 
 object Downloader {
   def downloadCiteSeer() = {
@@ -46,13 +54,11 @@ object Downloader {
   }
 
   def indexCiteSeer(size: Int) = {
-    val analyzer = new StandardAnalyzer(Version.LUCENE_46)
-    val config = new IndexWriterConfig(Version.LUCENE_46, analyzer)
-    val dir = FSDirectory.open(new File("citeseer-index"))
-    val writer = new IndexWriter(dir, config)
+    val index = new ReadableLuceneIndex with WritableLuceneIndex with LuceneStandardAnalyzer with DefaultFSLuceneDirectory
 
     (0 until size).map(i => new File("citeseer-raw/" + i + ".xml"))
       .foreach(f => {
+        logger.info("indexing " + f.getName())
         (XML.loadFile(f) \\ "dc").foreach(d => {
           val tags = Seq(d \ "title", d \ "source")
           if (tags.forall(_.nonEmpty)) {
@@ -60,16 +66,23 @@ object Downloader {
             val source = (d \ "source").head.text
             if (source.endsWith(".pdf")) {
               val doc = new Document()
-              doc.add(new TextField("title", title, Store.YES))
-              doc.add(new StringField("source", source, Store.YES))
-              writer.addDocument(doc)
+              doc.addIndexedStoredField("title", title)
+              doc.addStoredOnlyField("source", source)
+              index.addDocument(doc)
             }
           }
         })
       })
+  }
 
-    writer.close()
-    dir.close()
+  def findFromCiteSeer(title: String) = {
+    val index = new ReadableLuceneIndex with LuceneStandardAnalyzer with DefaultFSLuceneDirectory
+    val parser = index.queryParserForDefaultField("title")
+    val query = parser.parse(title)
+    index.searchTopDocuments(query, 1).foreach(doc => {
+      logger.info("found: " + doc.get("title"))
+      logger.info("source: " + doc.get("source"))
+    })
   }
 
   def download() = {
