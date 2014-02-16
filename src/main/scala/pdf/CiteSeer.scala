@@ -25,8 +25,11 @@ object CiteSeer {
   val analyzer = new StandardAnalyzer(Version.LUCENE_46)
   val config = new IndexWriterConfig(Version.LUCENE_46, analyzer)
   val dir = FSDirectory.open(new File("citeseer-index"))
+  val parser = new QueryParser(Version.LUCENE_46, "title", analyzer)
 
-  val regex = """[^a-zA-Z\-0-9 ]"""
+  private def clean(str: String) = {
+    str.replaceAll("""[^a-zA-Z0-9 ]""", "").replaceAll(" +", " ")
+  }
 
   "mkdir citeseer-raw".!
   "mkdir citeseer-pdf".!
@@ -63,25 +66,25 @@ object CiteSeer {
         (XML.loadFile(f) \\ "dc").foreach(d => {
           val tags = Seq(d \ "title", d \ "source")
           if (tags.forall(_.nonEmpty)) {
-            val title = (d \ "title").head.text.replaceAll(regex, "").toLowerCase()
+            val title = clean((d \ "title").head.text.toLowerCase())
+            val identifier = (d \ "identifier").head.text
+            val cache = identifier.replaceAll("summary", "download") + "&rep=rep1&type=pdf"
             val source = (d \ "source").head.text
-            if (source.endsWith(".pdf")) {
-              val doc = new Document()
-              doc.add(new TextField("title", title, Store.YES))
-              doc.add(new StringField("source", source, Store.YES))
-              writer.addDocument(doc)
-            }
+            val doc = new Document()
+            doc.add(new TextField("title", title, Store.YES))
+            doc.add(new StringField("cache", cache, Store.YES))
+            //doc.add(new StringField("source", source, Store.YES))
+            writer.addDocument(doc)
           }
         })
       })
     writer.close()
   }
 
-  def downloadPdf(dblpKey: String, title: String) = {
-    val cleanTitle = title.replaceAll(regex, "").toLowerCase()
+  def downloadPdf(dblpKey: String, title: String): Boolean = {
+    val cleanTitle = clean(title.toLowerCase())
     val reader = DirectoryReader.open(dir)
     val searcher = new IndexSearcher(reader)
-    val parser = new QueryParser(Version.LUCENE_46, "title", analyzer)
     val query = parser.parse(cleanTitle)
     searcher.search(query, 1).scoreDocs
       .map(s => searcher.doc(s.doc))
@@ -90,11 +93,17 @@ object CiteSeer {
         case Some(doc) => {
           val citeSeerTitle = doc.get("title")
           if (citeSeerTitle == cleanTitle) {
-            //download source
-            val source = doc.get("source")
-            logger.info("download pdf: " + source)
-            Downloader.curl(source, "citeseer-pdf/" + dblpKey + ".pdf") == 0
-          }else{
+            val file = new File("citeseer-pdf/" + dblpKey + ".pdf")
+            if (!file.exists()) {
+              //val source = doc.get("source")
+              //val srcRes = Downloader.curl(source, file.getPath())
+              val cache = doc.get("cache")
+              logger.info("download pdf: " + cache)
+              Downloader.curl(cache, file.getPath()) == 0
+            } else {
+              false
+            }
+          } else {
             false
           }
         }
