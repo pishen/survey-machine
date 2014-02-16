@@ -28,7 +28,7 @@ object CiteSeer {
   val parser = new QueryParser(Version.LUCENE_46, "title", analyzer)
 
   private def clean(str: String) = {
-    str.replaceAll("""[^a-zA-Z0-9 ]""", "").replaceAll(" +", " ")
+    str.replaceAll("""[^a-zA-Z0-9 ]""", "").replaceAll(" +", " ").toLowerCase()
   }
 
   "mkdir citeseer-raw".!
@@ -64,12 +64,12 @@ object CiteSeer {
       .foreach(f => {
         logger.info("indexing " + f.getName())
         (XML.loadFile(f) \\ "dc").foreach(d => {
-          val tags = Seq(d \ "title", d \ "source")
+          val tags = Seq(d \ "title", d \ "identifier")
           if (tags.forall(_.nonEmpty)) {
-            val title = clean((d \ "title").head.text.toLowerCase())
+            val title = clean((d \ "title").head.text)
             val identifier = (d \ "identifier").head.text
             val cache = identifier.replaceAll("summary", "download") + "&rep=rep1&type=pdf"
-            val source = (d \ "source").head.text
+            //val source = (d \ "source").head.text
             val doc = new Document()
             doc.add(new TextField("title", title, Store.YES))
             doc.add(new StringField("cache", cache, Store.YES))
@@ -82,7 +82,7 @@ object CiteSeer {
   }
 
   def downloadPdf(dblpKey: String, title: String): Boolean = {
-    val cleanTitle = clean(title.toLowerCase())
+    val cleanTitle = clean(title)
     val reader = DirectoryReader.open(dir)
     val searcher = new IndexSearcher(reader)
     val query = parser.parse(cleanTitle)
