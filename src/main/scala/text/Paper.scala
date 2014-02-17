@@ -7,10 +7,10 @@ import org.neo4j.graphdb.Direction
 import main.Main.logger
 
 case class Paper(id: Long) {
-  lazy val dblpKey = Neo4j.getNodeProp(id, "dblpKey")
-  lazy val title = Neo4j.getNodeProp(id, "title")
-  lazy val year = Neo4j.getNodeProp(id, "year").toInt
-  lazy val ee = Neo4j.getNodeProp(id, "ee")
+  def dblpKey = Neo4j.getNodeProp(id, "dblpKey")
+  def title = Neo4j.getNodeProp(id, "title")
+  def year = Neo4j.getNodeProp(id, "year").toInt
+  def ee = Neo4j.getNodeProp(id, "ee")
 
   def outgoingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.OUTGOING).map(Ref(_))
   def incomingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.INCOMING).map(Ref(_))

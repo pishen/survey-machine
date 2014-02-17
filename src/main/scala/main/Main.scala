@@ -9,6 +9,7 @@ object Main {
   val logger = LoggerFactory.getLogger("main")
 
   def main(args: Array[String]): Unit = {
-    pdf.Tester.test()
+    //pdf.Tester.test()
+    text.Tester.test()
   }
 }
