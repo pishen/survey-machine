@@ -13,7 +13,7 @@ object Tester {
       val resPdf = CiteSeer.downloadPdf(p.dblpKey, p.title)
       if(resAcm || resPdf){
         Downloader.switchPort()
-        if(resPdf) Thread.sleep(3000)
+        Thread.sleep(5000)
       }
     })
   }
