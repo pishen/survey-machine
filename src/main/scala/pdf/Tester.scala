@@ -6,7 +6,7 @@ object Tester {
   def test() = {
     //CiteSeer.createIndex(0 to 5100)
     new DblpIterator().filter(p => {
-      p.year >= 2010 && p.ee.startsWith("http://doi.acm.org")
+      p.year >= 2006 && p.year < 2010 && p.ee.startsWith("http://doi.acm.org")
     }).foreach(p => {
       logger.info("paper: " + p.dblpKey)
       val resAcm = Acm.download(p.dblpKey, p.ee)
