@@ -20,6 +20,6 @@ object Ranker {
   }
 
   def rwr(survey: Paper, query: Seq[Paper], ans: Seq[Paper]) = {
-
+    
   }
 }

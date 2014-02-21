@@ -26,6 +26,6 @@ object Eval {
 
   def computeRR(ranks: Seq[Paper], answers: Seq[Paper]) = {
     val rank = ranks.indexWhere(answers contains _) + 1
-    1 / rank.toDouble
+    if (rank == 0) 0.0 else 1 / rank.toDouble
   }
 }

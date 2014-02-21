@@ -10,8 +10,8 @@ object Tester {
     val surveys = Paper.allPapers
       .filter(p => {
         val conf = p.dblpKey.split("-")(1)
-        p.year >= 2007 && p.outgoingPapers.size >= 20 && conf == "wsdm"
-        /*(conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")*/
+        p.year >= 2007 && p.outgoingPapers.size >= 20 &&
+        (conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")
       }).toSeq
     logger.info("wsdm >= 2007 size: " + surveys.size)
 
