@@ -1,5 +1,7 @@
 package text
 
+import math._
+
 object Eval {
   def computeAP(ranks: Seq[Paper], answers: Seq[Paper]) = {
     require(answers.size > 0)
@@ -14,4 +16,13 @@ object Eval {
     val recall = hits.size / answers.size.toDouble
     2 * precision * recall / (precision + recall)
   }
+
+  def computeNDCG(ranks: Seq[Paper], answers: Seq[Paper]) = {
+    val dcg = ranks.zipWithIndex.map { case (p, i) => (p, i + 1) }
+      .map { case (p, i) => (if (answers.contains(p)) 1 else 0) / log(1 + i) }.sum
+    val idcg = (1 to ranks.intersect(answers).size).map(i => 1 / log(1 + i)).sum
+    dcg / idcg
+  }
+  
+  
 }

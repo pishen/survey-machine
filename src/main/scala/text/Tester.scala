@@ -9,13 +9,15 @@ object Tester {
   def test() = {
     val surveys = Paper.allPapers
       .filter(p => {
+        println("check " + p.dblpKey)
         val conf = p.dblpKey.split("-")(1)
-        p.year >= 2007 && conf == "wsdm"
+        p.year >= 2007 && p.outgoingPapers.size >= 20 && conf == "wsdm"
         /*(conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")*/
       }).toSeq
     logger.info("wsdm >= 2007 size: " + surveys.size)
 
     val res = surveys.flatMap(survey => {
+      println("testing on survey " + survey.dblpKey)
       val citedBySurvey = survey.outgoingPapers
       val ansSize = (citedBySurvey.size * 0.1).toInt
       (1 to 10).map(i => {
