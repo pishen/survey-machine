@@ -7,11 +7,18 @@ import scala.util.Random
 
 object Tester {
   def test() = {
+    def propogate(survey: Paper, seeds: Seq[Paper]): Seq[Paper] = {
+      val newSeeds = seeds.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers)).distinct
+      if(newSeeds.size == seeds.size) seeds else propogate(survey, newSeeds)
+    }
+    
     val surveys = Paper.allPapers
       .filter(p => {
         val conf = p.dblpKey.split("-")(1)
-        p.year >= 2004 && p.year <= 2007 && p.outgoingPapers.size >= 20 &&
-        (conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")
+        p.year >= 2007 &&
+        p.outgoingPapers.size >= 20 &&
+        propogate(p, Seq(p.outgoingPapers.head)).size == p.outgoingPapers.size
+        /*(conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")*/
       }).toSeq
 
     val res = surveys.flatMap(survey => {
