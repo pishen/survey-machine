@@ -9,8 +9,9 @@ object Tester {
   def test() = {
     def propogate(survey: Paper, seeds: Seq[Paper], used: Seq[Paper]): Seq[Paper] = {
       val larger = seeds.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers)).distinct
-      if(larger.size == seeds.size) used ++ seeds
-      else propogate(survey, larger.diff(seeds), used ++ seeds)
+      val largerSeeds = larger.intersect(survey.outgoingPapers).diff(used)
+      if (largerSeeds.size == seeds.size) used ++ seeds
+      else propogate(survey, largerSeeds.diff(seeds), used ++ seeds)
     }
     
     val surveys = Paper.allPapers
