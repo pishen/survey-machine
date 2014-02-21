@@ -1,13 +1,13 @@
 package text
 
 object Ranker {
-  def cocitation(survey: Paper, queries: Seq[Paper], ans: Seq[Paper], k: Int) = {
+  def cocitation(survey: Paper, queries: Seq[Paper], k: Int) = {
     queries.flatMap(q => {
       q.incomingPapers
         .filter(_ != survey)
         .flatMap(_.outgoingPapers)
         .filter(_ != survey)
-        .diff(ans)
+        .diff(queries)
     }).groupBy(identity)
       .mapValues(_.size)
       .toSeq

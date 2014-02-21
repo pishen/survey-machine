@@ -14,7 +14,7 @@ object Eval {
     val hits = ranks.intersect(answers)
     val precision = hits.size / ranks.size.toDouble
     val recall = hits.size / answers.size.toDouble
-    2 * precision * recall / (precision + recall)
+    if (hits.size == 0) 0.0 else 2 * precision * recall / (precision + recall)
   }
 
   def computeNDCG(ranks: Seq[Paper], answers: Seq[Paper]) = {
@@ -23,6 +23,9 @@ object Eval {
     val idcg = (1 to ranks.intersect(answers).size).map(i => 1 / log(1 + i)).sum
     dcg / idcg
   }
-  
-  
+
+  def computeRR(ranks: Seq[Paper], answers: Seq[Paper]) = {
+    val rank = ranks.indexWhere(answers contains _) + 1
+    1 / rank.toDouble
+  }
 }
