@@ -17,7 +17,7 @@ object Tester {
 
     val res = surveys.flatMap(survey => {
       println("testing on survey " + survey.dblpKey)
-      val citedBySurvey = survey.outgoingPapers
+      val citedBySurvey = survey.outgoingPapers.distinct
       val ansSize = (citedBySurvey.size * 0.1).toInt
       (1 to 10).map(i => {
         val answers = Random.shuffle(citedBySurvey).take(ansSize)

@@ -5,9 +5,7 @@ object Ranker {
     queries.flatMap(q => {
       q.incomingPapers
         .filter(_ != survey)
-        .flatMap(_.outgoingPapers)
-        .filter(_ != survey)
-        .diff(queries)
+        .flatMap(_.outgoingPapers.filter(p => p != survey && !queries.contains(p)))
     }).groupBy(identity)
       .mapValues(_.size)
       .toSeq
@@ -16,9 +14,9 @@ object Ranker {
       .map(_._1)
       .take(k)
   }
-  
+
   def newCocitation(survey: Paper, queries: Seq[Paper], ans: Seq[Paper]) = {
-    
+
   }
 
   def rwr(survey: Paper, query: Seq[Paper], ans: Seq[Paper]) = {
