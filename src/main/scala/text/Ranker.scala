@@ -15,11 +15,23 @@ object Ranker {
       .take(k)
   }
 
-  def newCocitation(survey: Paper, queries: Seq[Paper], ans: Seq[Paper]) = {
+  def newCocitation(survey: Paper, queries: Seq[Paper]) = {
 
   }
+  
+  def katz(survey: Paper, queries: Seq[Paper]) = {
+    
+  }
+  
+  def newKatz(survey: Paper, queries: Seq[Paper]) = {
+    
+  }
 
-  def rwr(survey: Paper, query: Seq[Paper], ans: Seq[Paper]) = {
+  def rwr(survey: Paper, queries: Seq[Paper]) = {
+    
+  }
+  
+  def newRwr(survey: Paper, queries: Seq[Paper]) = {
     
   }
 }

@@ -10,10 +10,9 @@ object Tester {
     val surveys = Paper.allPapers
       .filter(p => {
         val conf = p.dblpKey.split("-")(1)
-        p.year >= 2007 && p.outgoingPapers.size >= 20 &&
+        p.year >= 2004 && p.year <= 2007 && p.outgoingPapers.size >= 20 &&
         (conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")
       }).toSeq
-    logger.info("wsdm >= 2007 size: " + surveys.size)
 
     val res = surveys.flatMap(survey => {
       println("testing on survey " + survey.dblpKey)
@@ -26,14 +25,19 @@ object Tester {
         val ap = Eval.computeAP(ranklist, answers)
         val f1 = Eval.computeF1(ranklist, answers)
         val rr = Eval.computeRR(ranklist, answers)
-        (ap, f1, rr)
+        (survey, ap, f1, rr)
       })
     })
-    val map = res.map(_._1).sum / res.size.toDouble
-    val meanF1 = res.map(_._2).sum / res.size.toDouble
-    val mrr = res.map(_._3).sum / res.size.toDouble
+    val map = res.map(_._2).sum / res.size.toDouble
+    val meanF1 = res.map(_._3).sum / res.size.toDouble
+    val mrr = res.map(_._4).sum / res.size.toDouble
     logger.info("MAP: " + map)
     logger.info("meanF1: " + meanF1)
     logger.info("MRR: " + mrr)
+    logger.info("top APs:")
+    res.sortBy(_._2).reverse.take(20).foreach(r => {
+      logger.info(r._1.title)
+      logger.info("ap: " + r._2)
+    })
   }
 }
