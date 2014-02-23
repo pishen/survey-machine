@@ -9,5 +9,6 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.0.13",
   "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2",
   "org.jsoup" % "jsoup" % "1.7.3",
-  "com.rockymadden.stringmetric" %% "stringmetric-core" % "0.27.2"
+  "com.rockymadden.stringmetric" %% "stringmetric-core" % "0.27.2",
+  "org.scalanlp" % "breeze_2.10" % "0.6.1"
 )

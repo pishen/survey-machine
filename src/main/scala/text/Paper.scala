@@ -12,8 +12,8 @@ case class Paper(id: Long) {
   def year = Neo4j.getNodeProp(id, "year").toInt
   def ee = Neo4j.getNodeProp(id, "ee")
 
-  def outgoingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.OUTGOING).map(Ref(_))
-  def incomingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.INCOMING).map(Ref(_))
+  def outgoingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.OUTGOING).map(Ref(_)).toSet
+  def incomingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.INCOMING).map(Ref(_)).toSet
 
   def outgoingPapers = outgoingRefs.map(_.endPaper)
   def incomingPapers = incomingRefs.map(_.startPaper)
