@@ -2,6 +2,7 @@ package text
 
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
+import main.Main.logger
 
 object Ranker {
   def cocitation(survey: Paper, queries: Set[Paper], k: Int) = {
@@ -47,6 +48,7 @@ object Ranker {
     }
     //adjust the walking depth here
     val subset = propagate(0, 3, queries, Set.empty)
+    logger.info("rwr size: " + subset.size)
     val subseq = subset.toIndexedSeq
     val cols = subseq.map(p => {
       val neighbors = (p.outgoingPapers ++ p.incomingPapers).intersect(subset)
