@@ -3,6 +3,7 @@ package text
 import breeze.linalg.DenseMatrix
 import breeze.linalg.DenseVector
 import main.Main.logger
+import math._
 
 object Ranker {
   def cocitation(survey: Paper, queries: Set[Paper], k: Int) = {
@@ -46,30 +47,34 @@ object Ranker {
         propagate(level + 1, limit, newLevel, newPassed)
       }
     }
-    //adjust the walking depth here
+    //get the sub-graph, adjust the walking depth here
     val subset = propagate(0, 3, queries, Set.empty)
+    def getNeighbors(p: Paper) = (p.incomingPapers ++ p.outgoingPapers).intersect(subset)
     logger.info("rwr size: " + subset.size)
-    val subseq = subset.toIndexedSeq
-    val cols = subseq.map(p => {
-      val neighbors = (p.outgoingPapers ++ p.incomingPapers).intersect(subset)
-      val prob = if (neighbors.isEmpty) 0.0 else 1 / neighbors.size.toDouble
-      subseq.map(t => if (neighbors.contains(t)) prob else 0.0)
-    })
-    val matrix = DenseMatrix.tabulate(subseq.size, subseq.size)((i, j) => cols(j)(i))
-    val dProb = 1 / queries.size.toDouble
-    val d = DenseVector(subseq.map(p => if (queries.contains(p)) dProb else 0.0).toArray)
 
-    def iterate(oldV: DenseVector[Double], epsilon: Double): DenseVector[Double] = {
-      val newV = matrix * oldV * alpha + d * (1 - alpha)
-      val delta = (newV - oldV).norm(2)
-      println("delta: " + delta)
-      if (delta < epsilon) newV else iterate(newV, epsilon)
+    val probMap = subset.map(p => {
+      val neighbors = getNeighbors(p)
+      val prob = if (neighbors.isEmpty) 0.0 else 1 / neighbors.size.toDouble
+      p -> prob
+    }).toMap
+
+    val restartProb = (1 / queries.size.toDouble) * (1 - alpha)
+    def iterate(oldPRs: Map[Paper, Double], epsilon: Double): Map[Paper, Double] = {
+      val newPRs = subset.map(p => {
+        val fromWalk = getNeighbors(p).map(n => oldPRs(n) * probMap(n)).sum * alpha
+        val fromRestart = if (queries.contains(p)) restartProb else 0.0
+        p -> (fromWalk + fromRestart)
+      }).toMap
+      val l2 = sqrt(newPRs.map { case (p, pr) => pow(pr - oldPRs(p), 2) }.sum)
+      println("l2: " + l2)
+      if (l2 < epsilon) newPRs else iterate(newPRs, epsilon)
     }
-    val initV = DenseVector(Array.fill(subseq.size)(1 / subseq.size.toDouble))
+
+    val initPRs = subset.map(_ -> 1 / subset.size.toDouble).toMap
     //adjust epsilon here
-    val stationalV = iterate(initV, 1.0)
-    subseq.zip(stationalV.toArray)
-      .filter(p => !queries.contains(p._1) && p._1.year <= survey.year)
+    iterate(initPRs, 1.0)
+      .filterKeys(p => !queries.contains(p) && p.year <= survey.year)
+      .toSeq
       .sortBy(_._2)
       .reverse
       .map(_._1)
