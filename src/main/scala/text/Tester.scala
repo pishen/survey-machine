@@ -10,7 +10,7 @@ object Tester {
                  coAP: Double, coF1: Double, coRR: Double,
                  rwrAP: Double, rwrF1: Double, rwrRR: Double)
 
-  def test() = {
+  def test(args: Array[String]) = {
     /*def cociteSearch(survey: Paper, seeds: Seq[Paper], used: Seq[Paper]): Seq[Paper] = {
       val larger = seeds.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers)).distinct
       val largerSeeds = larger.intersect(survey.outgoingPapers).diff(used)
@@ -42,7 +42,7 @@ object Tester {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)
         val coRanks = Ranker.cocitation(survey, queries, 50)
-        val rwrRanks = Ranker.rwr(survey, queries, 0.85, 50)
+        val rwrRanks = Ranker.rwr(survey, queries, args(0).toDouble, args(1).toDouble, 50)
         Res(survey,
           Eval.computeAP(coRanks, answers),
           Eval.computeF1(coRanks, answers),

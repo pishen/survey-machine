@@ -34,7 +34,7 @@ object Ranker {
 
   }
 
-  def rwr(survey: Paper, queries: Set[Paper], alpha: Double, k: Int) = {
+  def rwr(survey: Paper, queries: Set[Paper], alpha: Double, epsilon: Double, k: Int) = {
     def propagate(level: Int, limit: Int, levelPapers: Set[Paper], passedPapers: Set[Paper]): Set[Paper] = {
       if (level == limit) {
         levelPapers ++ passedPapers
@@ -59,7 +59,7 @@ object Ranker {
     }).toMap
 
     val restartProb = (1 / queries.size.toDouble) * (1 - alpha)
-    def iterate(oldPRs: Map[Paper, Double], epsilon: Double): Map[Paper, Double] = {
+    def iterate(oldPRs: Map[Paper, Double]): Map[Paper, Double] = {
       val newPRs = subset.map(p => {
         val fromWalk = getNeighbors(p).map(n => oldPRs(n) * probMap(n)).sum * alpha
         val fromRestart = if (queries.contains(p)) restartProb else 0.0
@@ -67,12 +67,12 @@ object Ranker {
       }).toMap
       val l2 = sqrt(newPRs.map { case (p, pr) => pow(pr - oldPRs(p), 2) }.sum)
       println("l2: " + l2)
-      if (l2 < epsilon) newPRs else iterate(newPRs, epsilon)
+      if (l2 < epsilon) newPRs else iterate(newPRs)
     }
 
     val initPRs = subset.map(_ -> 1 / subset.size.toDouble).toMap
     //adjust epsilon here
-    iterate(initPRs, 0.001)
+    iterate(initPRs)
       .filterKeys(p => !queries.contains(p) && p.year <= survey.year)
       .toSeq
       .sortBy(_._2)
