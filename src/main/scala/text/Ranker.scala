@@ -72,7 +72,7 @@ object Ranker {
 
     val initPRs = subset.map(_ -> 1 / subset.size.toDouble).toMap
     //adjust epsilon here
-    iterate(initPRs, 1.0)
+    iterate(initPRs, 0.001)
       .filterKeys(p => !queries.contains(p) && p.year <= survey.year)
       .toSeq
       .sortBy(_._2)
