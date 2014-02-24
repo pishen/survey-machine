@@ -7,8 +7,7 @@ import scala.util.Random
 
 object Tester {
   case class Res(survey: Paper,
-                 coAP: Double, coF1: Double, coRR: Double,
-                 rwrAP: Double, rwrF1: Double, rwrRR: Double)
+                 coAP: Double, coF1: Double, coRR: Double)
 
   def test(args: Array[String]) = {
     /*def cociteSearch(survey: Paper, seeds: Seq[Paper], used: Seq[Paper]): Seq[Paper] = {
@@ -31,7 +30,7 @@ object Tester {
           p.outgoingPapers.size >= 20 &&
           degreeFilter(p)
         /*(conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")*/
-      }).toSeq.take(1)
+      }).toSeq
 
     val ress = surveys.flatMap(survey => {
       println("testing on survey " + survey.dblpKey)
@@ -42,29 +41,20 @@ object Tester {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)
         val coRanks = Ranker.cocitation(survey, queries, 50)
-        val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
+        //val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
         Res(survey,
           Eval.computeAP(coRanks, answers),
           Eval.computeF1(coRanks, answers),
-          Eval.computeRR(coRanks, answers),
-          Eval.computeAP(rwrRanks, answers),
-          Eval.computeF1(rwrRanks, answers),
-          Eval.computeRR(rwrRanks, answers))
+          Eval.computeRR(coRanks, answers))
       })
     })
     val ressSize = ress.size.toDouble
     val coMAP = ress.map(_.coAP).sum / ressSize
     val coMeanF1 = ress.map(_.coF1).sum / ressSize
     val coMRR = ress.map(_.coRR).sum / ressSize
-    val rwrMAP = ress.map(_.rwrAP).sum / ressSize
-    val rwrMeanF1 = ress.map(_.rwrF1).sum / ressSize
-    val rwrMRR = ress.map(_.rwrRR).sum / ressSize
     logger.info("coMAP: " + coMAP)
     logger.info("coMeanF1: " + coMeanF1)
     logger.info("coMRR: " + coMRR)
-    logger.info("rwrMAP: " + rwrMAP)
-    logger.info("rwrMeanF1: " + rwrMeanF1)
-    logger.info("rwrMRR: " + rwrMRR)
     /*logger.info("top coAPs:")
     ress.sortBy(_.coAP).reverse.take(20).foreach(r => {
       logger.info(r.survey.title)
