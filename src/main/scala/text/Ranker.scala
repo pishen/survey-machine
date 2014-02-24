@@ -34,7 +34,7 @@ object Ranker {
 
   }
 
-  def rwr(survey: Paper, queries: Set[Paper], alpha: Double, epsilon: Double, k: Int) = {
+  def rwr(survey: Paper, queries: Set[Paper], depth: Int, alpha: Double, epsilon: Double, k: Int) = {
     def propagate(level: Int, limit: Int, levelPapers: Set[Paper], passedPapers: Set[Paper]): Set[Paper] = {
       if (level == limit) {
         levelPapers ++ passedPapers
@@ -48,7 +48,7 @@ object Ranker {
       }
     }
     //get the sub-graph, adjust the walking depth here
-    val subset = propagate(0, 3, queries, Set.empty)
+    val subset = propagate(0, depth, queries, Set.empty)
     def getNeighbors(p: Paper) = (p.incomingPapers ++ p.outgoingPapers).intersect(subset)
     logger.info("rwr size: " + subset.size)
 
