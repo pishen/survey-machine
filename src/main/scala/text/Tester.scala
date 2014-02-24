@@ -26,14 +26,14 @@ object Tester {
     val surveys = Paper.allPapers
       .filter(p => {
         //val conf = p.dblpKey.split("-")(1)
-        p.year >= 2007 &&
+        p.year >= 2005 &&
           p.outgoingPapers.size >= 20 &&
           degreeFilter(p)
         /*(conf == "wsdm" || conf == "www" || conf == "sigir" || conf == "cikm" || conf == "kdd")*/
       }).toSeq
 
     val ress = surveys.flatMap(survey => {
-      println("testing on survey " + survey.dblpKey)
+      logger.info("test survey: " + survey.dblpKey)
       val base = survey.outgoingPapers
       val baseSeq = base.toSeq
       val ansSize = (base.size * 0.1).toInt
