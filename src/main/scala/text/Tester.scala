@@ -18,7 +18,7 @@ object Tester {
     }*/
     def degreeFilter(survey: Paper) = {
       val base = survey.outgoingPapers
-      val avgDegree = base.map(p => (p.outgoingPapers ++ p.incomingPapers).size).sum / base.size.toDouble
+      val avgDegree = base.map(p => p.incomingPapers.size).sum / base.size.toDouble
       //adjust the threshold here
       avgDegree >= 20.0
     }
