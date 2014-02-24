@@ -50,7 +50,7 @@ object Ranker {
     //get the sub-graph, adjust the walking depth here
     val subset = propagate(0, depth, queries, Set.empty)
     def getNeighbors(p: Paper) = (p.incomingPapers ++ p.outgoingPapers).intersect(subset)
-    logger.info("rwr size: " + subset.size)
+    println("rwr size: " + subset.size)
 
     val probMap = subset.map(p => {
       val neighbors = getNeighbors(p)
