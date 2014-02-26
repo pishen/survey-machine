@@ -7,27 +7,28 @@ import scala.util.Random
 
 object Tester {
   case class Res(survey: Paper, coEval: Eval)
-
+  
   def test(args: Array[String]) = {
-    val paperSize = Paper.allPapers.size
-    val linkSize = Paper.allPapers.map(_.outgoingPapers.size).sum
-    logger.info("paperSize: " + paperSize + ", linkSize: " + linkSize)
+    //copy old papers again
+    new DblpIterator().foreach(p => {
+      Neo4jOld.getRecord(p.dblpKey) match {
+        case None => //do nothing
+        case Some(id) => {
+          Paper.createPaper(p.dblpKey, p.title, p.year.toString, p.ee)
+        }
+      }
+    })
   }
   
   def test2(args: Array[String]) = {
-    /*def cociteSearch(survey: Paper, seeds: Seq[Paper], used: Seq[Paper]): Seq[Paper] = {
-      val larger = seeds.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers)).distinct
-      val largerSeeds = larger.intersect(survey.outgoingPapers).diff(used)
-      if (largerSeeds.size == seeds.size) used ++ seeds
-      else cociteSearch(survey, largerSeeds.diff(seeds), used ++ seeds)
-    }*/
+    
     def degreeFilter(survey: Paper) = {
       val base = survey.outgoingPapers
       //degree lower bound
-      val check1 = base.forall(p => (p.outgoingPapers ++ p.incomingPapers).size >= 5)
+      //val check1 = base.forall(p => (p.outgoingPapers ++ p.incomingPapers).size >= 5)
       //avg degree
-      //val check2 = base.map(p => (p.outgoingPapers ++ p.incomingPapers).size).sum / base.size.toDouble >= 20
-      check1
+      val check2 = base.map(p => (p.outgoingPapers ++ p.incomingPapers).size).sum / base.size.toDouble >= 20
+      check2
     }
 
     val surveys = Paper.allPapers
@@ -50,7 +51,8 @@ object Tester {
       def findValidAns(): (Set[Paper], Set[Paper]) = {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)
-        if (validateAns(queries, answers)) (queries, answers) else findValidAns()
+        //if (validateAns(queries, answers)) (queries, answers) else findValidAns()
+        (queries, answers)
       }
       (1 to 10).map(i => {
         val (queries, answers) = findValidAns()

@@ -37,6 +37,8 @@ object Paper {
         "title" -> title,
         "year" -> year,
         "ee" -> ee))
+    }else{
+      logger.info("paper " + dblpKey + " already exist")
     }
   }
 

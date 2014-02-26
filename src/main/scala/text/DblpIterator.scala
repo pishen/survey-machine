@@ -21,15 +21,20 @@ class DblpIterator extends Iterator[DblpPaper] {
   private def parse(): Node = {
     if (dblp.hasNext) {
       val line = dblp.next
-      if (line.startsWith("<inproceedings")) {
+      def buildTag(tag: String) = {
         def combine(seq: Seq[String]): Seq[String] = {
           val cb = dblp.next
-          if (cb.startsWith("</inproceedings")) seq :+ cb
+          if (cb.startsWith("</" + tag)) seq :+ cb
           else combine(seq :+ cb)
         }
         val start = """<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE dblp SYSTEM "dblp.dtd"><dblp>"""
         val end = "</dblp>"
-        XML.loadString(start + combine(Seq(line)).mkString + end).\\("inproceedings").head
+        XML.loadString(start + combine(Seq(line)).mkString + end).\\(tag).head
+      }
+      if (line.startsWith("<inproceedings")) {
+        buildTag("inproceedings")
+      } else if(line.startsWith("<article")) {
+        buildTag("article")
       } else {
         parse()
       }
