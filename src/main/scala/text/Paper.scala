@@ -1,16 +1,16 @@
 package text
 
 import scala.Option.option2Iterable
-
 import org.neo4j.graphdb.Direction
-
 import main.Main.logger
+import scalax.io.Resource
 
 case class Paper(id: Long) {
   def dblpKey = Neo4j.getNodeProp(id, "dblpKey")
   def title = Neo4j.getNodeProp(id, "title")
   def year = Neo4j.getNodeProp(id, "year").toInt
   def ee = Neo4j.getNodeProp(id, "ee")
+  def content = Resource.fromFile("text-records/" + dblpKey).string
 
   def outgoingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.OUTGOING).map(Ref(_)).toSet
   def incomingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.INCOMING).map(Ref(_)).toSet

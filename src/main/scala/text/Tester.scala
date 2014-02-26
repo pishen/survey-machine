@@ -19,9 +19,11 @@ object Tester {
     }*/
     def degreeFilter(survey: Paper) = {
       val base = survey.outgoingPapers
-      val avgDegree = base.map(p => (p.outgoingPapers ++ p.incomingPapers).size).sum / base.size.toDouble
-      //adjust the threshold here
-      avgDegree >= 30.0
+      //degree lower bound
+      val check1 = base.forall(p => (p.outgoingPapers ++ p.incomingPapers).size >= 5)
+      //avg degree
+      //val check2 = base.map(p => (p.outgoingPapers ++ p.incomingPapers).size).sum / base.size.toDouble >= 20
+      check1
     }
 
     val surveys = Paper.allPapers
@@ -37,7 +39,7 @@ object Tester {
       logger.info("test survey " + survey.dblpKey)
       val base = survey.outgoingPapers
       val baseSeq = base.toSeq
-      val ansSize = (base.size * 0.1).toInt
+      val ansSize = (base.size * 0.5).toInt
       (1 to 10).map(i => {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)

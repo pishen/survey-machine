@@ -34,21 +34,23 @@ object Ranker {
 
   }
 
-  def rwr(survey: Paper, queries: Set[Paper], depth: Int, alpha: Double, epsilon: Double, k: Int) = {
-    def propagate(level: Int, limit: Int, levelPapers: Set[Paper], passedPapers: Set[Paper]): Set[Paper] = {
-      if (level == limit) {
-        levelPapers ++ passedPapers
-      } else {
-        val expanded = levelPapers
-          .flatMap(p => p.outgoingPapers ++ p.incomingPapers)
-          .filter(_ != survey)
-        val newPassed = passedPapers ++ levelPapers
-        val newLevel = expanded diff newPassed
-        propagate(level + 1, limit, newLevel, newPassed)
-      }
+  def propagate(survey: Paper, level: Int, limit: Int,
+                levelPapers: Set[Paper], passedPapers: Set[Paper]): Set[Paper] = {
+    if (level == limit) {
+      levelPapers ++ passedPapers
+    } else {
+      val expanded = levelPapers
+        .flatMap(p => p.outgoingPapers ++ p.incomingPapers)
+        .filter(_ != survey)
+      val newPassed = passedPapers ++ levelPapers
+      val newLevel = expanded diff newPassed
+      propagate(survey, level + 1, limit, newLevel, newPassed)
     }
+  }
+
+  def rwr(survey: Paper, queries: Set[Paper], depth: Int, alpha: Double, epsilon: Double, k: Int) = {
     //get the sub-graph, adjust the walking depth here
-    val subset = propagate(0, depth, queries, Set.empty)
+    val subset = propagate(survey, 0, depth, queries, Set.empty)
     def getNeighbors(p: Paper) = (p.incomingPapers ++ p.outgoingPapers).intersect(subset)
     println("rwr size: " + subset.size)
 
