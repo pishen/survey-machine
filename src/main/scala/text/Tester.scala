@@ -10,6 +10,7 @@ object Tester {
   
   def test(args: Array[String]) = {
     DbInitializer.createPapers()
+    //DbInitializer.connectPapers()
   }
   
   def test2(args: Array[String]) = {

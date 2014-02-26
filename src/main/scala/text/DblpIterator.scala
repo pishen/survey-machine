@@ -15,10 +15,10 @@ class DblpIterator extends Iterator[DblpPaper] {
   def next: DblpPaper = {
     val temp = buffer
     buffer = parse()
-    new DblpPaper(temp)
+    temp
   }
 
-  private def parse(): Node = {
+  private def parse(): DblpPaper = {
     if (dblp.hasNext) {
       val line = dblp.next
       def buildTag(tag: String) = {
@@ -29,16 +29,22 @@ class DblpIterator extends Iterator[DblpPaper] {
         }
         val start = """<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE dblp SYSTEM "dblp.dtd"><dblp>"""
         val end = "</dblp>"
-        XML.loadString(start + combine(Seq(line)).mkString + end).\\(tag).head
+        val node = XML.loadString(start + combine(Seq(line)).mkString + end).\\(tag).head
+        new DblpPaper(node)
       }
-      if (line.startsWith("<inproceedings")) {
-        buildTag("inproceedings")
-      } else if(line.startsWith("<article")) {
-        buildTag("article")
-      } else {
-        parse()
+      val paper = try {
+        if (line.startsWith("<inproceedings")) {
+          buildTag("inproceedings")
+        } else if (line.startsWith("<article")) {
+          buildTag("article")
+        } else {
+          null
+        }
+      } catch {
+        case e: Exception => null
       }
-    }else{
+      if (paper != null) paper else parse()
+    } else {
       null
     }
   }
