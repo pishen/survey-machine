@@ -9,15 +9,7 @@ object Tester {
   case class Res(survey: Paper, coEval: Eval)
   
   def test(args: Array[String]) = {
-    //copy old papers again
-    new DblpIterator().foreach(p => {
-      Neo4jOld.getRecord(p.dblpKey) match {
-        case None => //do nothing
-        case Some(id) => {
-          Paper.createPaper(p.dblpKey, p.title, p.year.toString, p.ee)
-        }
-      }
-    })
+    DbInitializer.createPapers()
   }
   
   def test2(args: Array[String]) = {

@@ -31,13 +31,13 @@ object Paper {
     val sameEe = getPaperByEe(ee)
     //make sure this paper's dblpKey and ee are unique 
     if (sameDblp.isEmpty && sameEe.isEmpty) {
-      logger.info("create Paper: " + dblpKey)
+      logger.info("create paper: " + dblpKey)
       Neo4j.createNode(Labels.Paper, Seq(
         "dblpKey" -> dblpKey,
         "title" -> title,
         "year" -> year,
         "ee" -> ee))
-    }else{
+    } else {
       logger.info("paper " + dblpKey + " already exist")
     }
   }
@@ -55,6 +55,6 @@ object Paper {
   }
 
   def allPapers() = {
-    new DblpIterator().flatMap(p => getPaperByDblpKey(p.dblpKey))
+    Resource.fromFile("dblp-keys").lines().flatMap(getPaperByDblpKey _)
   }
 }
