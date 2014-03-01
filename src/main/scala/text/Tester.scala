@@ -9,12 +9,6 @@ object Tester {
   case class Res(survey: Paper, coEval: Eval)
 
   def test(args: Array[String]) = {
-    val refSizes = Paper.allPapers.map(_.outgoingPapers.size).toSeq
-      .groupBy(identity).mapValues(_.size).toSeq.sortBy(_._1).reverse
-    refSizes.foreach(p => logger.info(p._1 + " " + p._2))
-  }
-
-  def test2(args: Array[String]) = {
 
     def degreeFilter(survey: Paper) = {
       val base = survey.outgoingPapers
@@ -29,8 +23,8 @@ object Tester {
       .filter(p => {
         //val conf = p.dblpKey.split("-")(1)
         p.year >= 2007 &&
-          p.outgoingPapers.size >= 20 &&
-          degreeFilter(p)
+          p.outgoingPapers.size >= 20
+          /*degreeFilter(p)*/
       }).toSeq
 
     val ress = surveys.flatMap(survey => {
@@ -61,6 +55,6 @@ object Tester {
     logger.info("coMAP: " + (ress.map(_.coEval.ap).sum / ressSize))
     logger.info("coMeanF1: " + (ress.map(_.coEval.f1).sum / ressSize))
     logger.info("coMeanP: " + (ress.map(_.coEval.precision).sum / ressSize))
-    logger.info("coMeanP: " + (ress.map(_.coEval.recall).sum / ressSize))
+    logger.info("coMeanR: " + (ress.map(_.coEval.recall).sum / ressSize))
   }
 }
