@@ -4,6 +4,7 @@ import scala.Option.option2Iterable
 import org.neo4j.graphdb.Direction
 import main.Main.logger
 import scalax.io.Resource
+import scala.io.Source
 
 case class Paper(id: Long) {
   def dblpKey = Neo4j.getNodeProp(id, "dblpKey")
@@ -55,6 +56,6 @@ object Paper {
   }
 
   def allPapers() = {
-    Resource.fromFile("dblp-keys").lines().flatMap(getPaperByDblpKey _)
+    Source.fromFile("dblp-keys").getLines.flatMap(getPaperByDblpKey _)
   }
 }

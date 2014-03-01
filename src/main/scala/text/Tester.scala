@@ -9,8 +9,9 @@ object Tester {
   case class Res(survey: Paper, coEval: Eval)
   
   def test(args: Array[String]) = {
-    //DbInitializer.createPapers()
-    DbInitializer.connectPapers()
+    val paperSize = Paper.allPapers.size
+    val refSize = Paper.allPapers.map(_.outgoingPapers.size).sum
+    logger.info("paperSize: " + paperSize + ", refSize: " + refSize)
   }
   
   def test2(args: Array[String]) = {
