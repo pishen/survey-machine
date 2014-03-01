@@ -57,6 +57,7 @@ object Tester {
     })
     val ressSize = ress.size.toDouble
 
+    logger.info("ress-size: " + ress.size)
     logger.info("coMAP: " + (ress.map(_.coEval.ap).sum / ressSize))
     logger.info("coMeanF1: " + (ress.map(_.coEval.f1).sum / ressSize))
     logger.info("coMeanP: " + (ress.map(_.coEval.precision).sum / ressSize))
