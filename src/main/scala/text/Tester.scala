@@ -6,7 +6,7 @@ import java.io.FileWriter
 import scala.util.Random
 
 object Tester {
-  case class Res(survey: Paper, coEval: Eval)
+  case class Res(survey: Paper, coEval: Eval, rwrEval: Eval)
 
   def test(args: Array[String]) = {
 
@@ -31,16 +31,8 @@ object Tester {
       logger.info("test survey " + survey.dblpKey)
       val base = survey.outgoingPapers
       val baseSeq = base.toSeq
-      val ansSize = (base.size * 0.9).toInt
-      def validateAns(queries: Set[Paper], answers: Set[Paper]) = {
-        val possibleSet = queries.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers))
-        answers.forall(a => possibleSet.contains(a))
-      }
-      def findValidAns(): (Set[Paper], Set[Paper]) = {
-        val answers = Random.shuffle(baseSeq).take(ansSize).toSet
-        val queries = base.diff(answers)
-        if (validateAns(queries, answers)) (queries, answers) else findValidAns()
-      }
+      val ansSize = (base.size * 0.5).toInt
+      
       (1 to 50).flatMap(i => {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)
@@ -48,8 +40,8 @@ object Tester {
         val possibleSet = queries.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers))
         if (answers.forall(a => possibleSet.contains(a))) {
           val coRanks = Ranker.cocitation(survey, queries, 50)
-          //val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
-          Some(Res(survey, Eval.eval(coRanks, answers)))
+          val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
+          Some(Res(survey, Eval.eval(coRanks, answers), Eval.eval(rwrRanks, answers)))
         } else {
           None
         }
@@ -62,5 +54,9 @@ object Tester {
     logger.info("coMeanF1: " + (ress.map(_.coEval.f1).sum / ressSize))
     logger.info("coMeanP: " + (ress.map(_.coEval.precision).sum / ressSize))
     logger.info("coMeanR: " + (ress.map(_.coEval.recall).sum / ressSize))
+    logger.info("rwrMAP: " + (ress.map(_.rwrEval.ap).sum / ressSize))
+    logger.info("rwrMeanF1: " + (ress.map(_.rwrEval.f1).sum / ressSize))
+    logger.info("rwrMeanP: " + (ress.map(_.rwrEval.precision).sum / ressSize))
+    logger.info("rwrMeanR: " + (ress.map(_.rwrEval.recall).sum / ressSize))
   }
 }
