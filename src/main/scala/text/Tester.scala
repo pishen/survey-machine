@@ -31,7 +31,7 @@ object Tester {
       logger.info("test survey " + survey.dblpKey)
       val base = survey.outgoingPapers
       val baseSeq = base.toSeq
-      val ansSize = (base.size * 0.5).toInt
+      val ansSize = (base.size * 0.1).toInt
       def validateAns(queries: Set[Paper], answers: Set[Paper]) = {
         val possibleSet = queries.flatMap(_.incomingPapers.flatMap(_.outgoingPapers))
         answers.forall(a => possibleSet.contains(a))
