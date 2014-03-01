@@ -11,7 +11,8 @@ case class Paper(id: Long) {
   def title = Neo4j.getNodeProp(id, "title")
   def year = Neo4j.getNodeProp(id, "year").toInt
   def ee = Neo4j.getNodeProp(id, "ee")
-  def content = Resource.fromFile("text-records/" + dblpKey).string
+  def citations =
+    ContentParser.findAllCitations(Resource.fromFile("text-records/" + dblpKey).string)
 
   def outgoingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.OUTGOING).map(Ref(_)).toSet
   def incomingRefs = Neo4j.getRels(id, Relationships.Ref, Direction.INCOMING).map(Ref(_)).toSet

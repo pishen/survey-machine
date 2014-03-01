@@ -33,18 +33,22 @@ object Tester {
       val baseSeq = base.toSeq
       val ansSize = (base.size * 0.5).toInt
       
-      (1 to 50).flatMap(i => {
+      (1 to 10).flatMap(i => {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)
 
-        val possibleSet = queries.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers))
+        val coRanks = Ranker.cocitation(survey, queries, 50)
+        val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
+        Some(Res(survey, Eval.eval(coRanks, answers), Eval.eval(rwrRanks, answers)))
+        
+        /*val possibleSet = queries.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers))
         if (answers.forall(a => possibleSet.contains(a))) {
           val coRanks = Ranker.cocitation(survey, queries, 50)
           val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
           Some(Res(survey, Eval.eval(coRanks, answers), Eval.eval(rwrRanks, answers)))
         } else {
           None
-        }
+        }*/
       })
     })
     val ressSize = ress.size.toDouble
