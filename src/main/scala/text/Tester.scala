@@ -7,15 +7,15 @@ import scala.util.Random
 
 object Tester {
   case class Res(survey: Paper, coEval: Eval)
-  
+
   def test(args: Array[String]) = {
-    val paperSize = Paper.allPapers.size
-    val refSize = Paper.allPapers.map(_.outgoingPapers.size).sum
-    logger.info("paperSize: " + paperSize + ", refSize: " + refSize)
+    val refSizes = Paper.allPapers.map(_.outgoingPapers.size).toSeq
+      .groupBy(identity).mapValues(_.size).toSeq.sortBy(_._1).reverse
+    refSizes.foreach(p => logger.info(p._1 + " " + p._2))
   }
-  
+
   def test2(args: Array[String]) = {
-    
+
     def degreeFilter(survey: Paper) = {
       val base = survey.outgoingPapers
       //degree lower bound
@@ -57,7 +57,7 @@ object Tester {
       })
     })
     val ressSize = ress.size.toDouble
-    
+
     logger.info("coMAP: " + (ress.map(_.coEval.ap).sum / ressSize))
     logger.info("coMeanF1: " + (ress.map(_.coEval.f1).sum / ressSize))
     logger.info("coMeanP: " + (ress.map(_.coEval.precision).sum / ressSize))
