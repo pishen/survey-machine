@@ -24,7 +24,7 @@ object Tester {
         //val conf = p.dblpKey.split("-")(1)
         p.year >= 2007 &&
           p.outgoingPapers.size >= 20
-          /*degreeFilter(p)*/
+        /*degreeFilter(p)*/
       }).toSeq
 
     val ress = surveys.flatMap(survey => {
@@ -33,21 +33,26 @@ object Tester {
       val baseSeq = base.toSeq
       val ansSize = (base.size * 0.1).toInt
       def validateAns(queries: Set[Paper], answers: Set[Paper]) = {
-        val possibleSet = queries.flatMap(_.incomingPapers.flatMap(_.outgoingPapers))
+        val possibleSet = queries.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers))
         answers.forall(a => possibleSet.contains(a))
       }
       def findValidAns(): (Set[Paper], Set[Paper]) = {
         val answers = Random.shuffle(baseSeq).take(ansSize).toSet
         val queries = base.diff(answers)
-        //if (validateAns(queries, answers)) (queries, answers) else findValidAns()
-        (queries, answers)
+        if (validateAns(queries, answers)) (queries, answers) else findValidAns()
       }
-      (1 to 10).map(i => {
-        val (queries, answers) = findValidAns()
+      (1 to 50).flatMap(i => {
+        val answers = Random.shuffle(baseSeq).take(ansSize).toSet
+        val queries = base.diff(answers)
 
-        val coRanks = Ranker.cocitation(survey, queries, 50)
-        //val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
-        Res(survey, Eval.eval(coRanks, answers))
+        val possibleSet = queries.flatMap(_.incomingPapers.filter(_ != survey).flatMap(_.outgoingPapers))
+        if (answers.forall(a => possibleSet.contains(a))) {
+          val coRanks = Ranker.cocitation(survey, queries, 50)
+          //val rwrRanks = Ranker.rwr(survey, queries, args(0).toInt, args(1).toDouble, args(2).toDouble, 50)
+          Some(Res(survey, Eval.eval(coRanks, answers)))
+        } else {
+          None
+        }
       })
     })
     val ressSize = ress.size.toDouble
