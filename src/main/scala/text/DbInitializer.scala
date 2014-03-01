@@ -30,9 +30,10 @@ object DbInitializer {
     })
     logger.info("renew dblp-keys")
     val dblpKeys = new DblpIterator().flatMap(p => {
-      Paper.getPaperByDblpKey(p.dblpKey).map(paper => paper.dblpKey)
-    }).toSeq
-    Resource.fromWriter(new FileWriter("dblp-keys")).writeStrings(dblpKeys, "\n")
+      println("check " + p.dblpKey)
+      Paper.getPaperByDblpKey(p.dblpKey).map(_.dblpKey)
+    })
+    Resource.fromWriter(new FileWriter("dblp-keys")).writeStrings(dblpKeys.toSeq, "\n")
   }
 
   def connectPapers() = {

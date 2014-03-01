@@ -9,8 +9,8 @@ object Tester {
   case class Res(survey: Paper, coEval: Eval)
   
   def test(args: Array[String]) = {
-    DbInitializer.createPapers()
-    //DbInitializer.connectPapers()
+    //DbInitializer.createPapers()
+    DbInitializer.connectPapers()
   }
   
   def test2(args: Array[String]) = {
