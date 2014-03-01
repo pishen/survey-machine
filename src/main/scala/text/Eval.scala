@@ -12,7 +12,7 @@ object Eval {
       precisions.sum / answers.size
     }
     val hitSize = ranks.toSet.intersect(answers).size
-    val precision = hitSize / ranks.size.toDouble
+    val precision = if(ranks.isEmpty) 0.0 else hitSize / ranks.size.toDouble
     val recall = hitSize / answers.size.toDouble
     val f1 = if (hitSize == 0) 0.0 else 2 * precision * recall / (precision + recall)
 
