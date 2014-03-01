@@ -51,8 +51,9 @@ object DbInitializer {
             if (target.nonEmpty) {
               val targetKey = Neo4jOld.getNodeProp(target.head, "NAME")
               val targetOpt = Paper.getPaperByDblpKey(targetKey)
-              assert(targetOpt.nonEmpty)
-              p.createRefTo(targetOpt.get, index)
+              if(targetOpt.nonEmpty){
+                p.createRefTo(targetOpt.get, index)
+              }
             }
           })
       }
