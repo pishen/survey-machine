@@ -13,10 +13,10 @@ object Tester {
     def degreeFilter(survey: Paper) = {
       val base = survey.outgoingPapers
       //degree lower bound
-      //val check1 = base.forall(p => (p.outgoingPapers ++ p.incomingPapers).size >= 5)
+      val check1 = base.forall(p => (p.outgoingPapers ++ p.incomingPapers).size >= 5)
       //avg degree
       val check2 = base.map(p => (p.outgoingPapers ++ p.incomingPapers).size).sum / base.size.toDouble >= 20
-      check2
+      check1 && check2
     }
 
     val surveys = Paper.allPapers
@@ -24,7 +24,7 @@ object Tester {
         //val conf = p.dblpKey.split("-")(1)
         p.year >= 2007 &&
           p.outgoingPapers.size >= 20
-        /*degreeFilter(p)*/
+        degreeFilter(p)
       }).toSeq
 
     val ress = surveys.flatMap(survey => {

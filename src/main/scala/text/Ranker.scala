@@ -23,7 +23,7 @@ object Ranker {
   }
 
   def newCocitation(survey: Paper, queries: Seq[Paper]) = {
-
+    
   }
 
   def katz(survey: Paper, queries: Seq[Paper]) = {
