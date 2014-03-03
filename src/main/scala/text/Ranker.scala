@@ -1,9 +1,8 @@
 package text
 
-import breeze.linalg.DenseMatrix
-import breeze.linalg.DenseVector
+import scala.math._
+
 import main.Main.logger
-import math._
 
 object Ranker {
   def cocitation(survey: Paper, queries: Set[Paper], k: Int) = {
@@ -22,8 +21,31 @@ object Ranker {
       .take(k)
   }
 
-  def newCocitation(survey: Paper, queries: Seq[Paper]) = {
-    
+  def newCocitation(survey: Paper, queries: Set[Paper], k: Int) = {
+    queries.toSeq.flatMap(q => {
+      q.incomingRefs.toSeq.flatMap(qRef => {
+        val citing = qRef.startPaper
+        if (citing != survey) {
+          val citations = citing.citations
+          val qIndex = qRef.index
+          val qOffsets = citations.filter(_.index == qIndex).map(_.offset)
+          citing.outgoingRefs.flatMap(tRef => {
+            val target = tRef.endPaper
+            if (target != survey && target.year <= survey.year && !queries.contains(target)) {
+              val tIndex = tRef.index
+              val tOffsets = citations.filter(_.index == tIndex).map(_.offset)
+              Some((target, if (qOffsets.intersect(tOffsets).nonEmpty) 5 else 1))
+            } else None
+          })
+        } else None
+      }).groupBy(_._1)
+        .mapValues(_.map(_._2).sum)
+        .toSeq
+        .sortBy(_._2)
+        .reverse
+        .map(_._1)
+        .take(k)
+    })
   }
 
   def katz(survey: Paper, queries: Seq[Paper]) = {
